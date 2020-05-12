@@ -1020,30 +1020,3 @@ curl https://oplata.qiwi.com/form?invoiceUid=606a5f75-4f8e-4ce2-b400-96717950227
 * [1С-Битрикс](http://marketplace.1c-bitrix.ru/solutions/qiwikassa.checkout/) - решение для работы с заказами
 * [Opencart](https://www.opencart.com/index.php?route=marketplace/extension/info&member_token=nH5fDsH3A5OkPF4zOe82hS0ypOhIqSEr&extension_id=36833) - решение для работы с заказами
 * [PrestaShop](https://github.com/QIWI-API/prestashop-payment-qiwi/releases) - решение для работы с заказами
-
-
-
-
-# Рекомендации к оформлению
-
-## Иконки {#design}
-
-Данные рекомендации помогут вашим пользователям быстрее сориентироваться на странице выбора способов переводов.
-
-* Если наш протокол QIWI — один из способов переводов на вашем сайте, то мы рекомендуем <b>выводить иконки всех способов переводов</b>, доступных на форме:
-
- ![Operation Flow](/images/var_1.png)
-
-  Допустимо отображение QIWI текстом, без логотипа. Иконки способов переводов выводятся:
-
- ![Operation Flow](/images/var_2.png)
-
-* Если  протокол QIWI  — единственный способ переводов на вашем сайте, то упоминание QIWI  в этом случае необязательно.  Иконки способов переводов, доступных на форме, в этом случае надо размещать под кнопкой перевода:
-
- ![Operation Flow](/images/var_3.png)
-
-## Логотипы для скачивания {#logos}
-
- <a href="/images/QIWI_Kassa.svg" download>Скачать логотип QIWI Кассы</a>
-
- <a href="/images/icons.svg" download>Скачать иконки способов переводов</a>

@@ -1038,29 +1038,3 @@ You can add parameters to URL from `payUrl` field in response to the [invoice re
 * [1С-Bitrix](http://marketplace.1c-bitrix.ru/solutions/qiwikassa.checkout/) - plugin for work with orders
 * [Opencart](https://www.opencart.com/index.php?route=marketplace/extension/info&member_token=nH5fDsH3A5OkPF4zOe82hS0ypOhIqSEr&extension_id=36833) - plugin for work with orders
 * [PrestaShop](https://github.com/QIWI-API/prestashop-payment-qiwi/releases) - plugin for work with orders
-
-
-
-# Design recommendation
-
-## Design guideline {#design_guide}
-
- This guideline helps to reduce the time it takes customers to go from checkout to payment form.
-
-* If P2P Invoices is the one of payments methods on your page, we recommend to show all available payment methods' icons:
-
-  ![Operation Flow](/images/var_1_en.png)
-
-   You can use 'QIWI' without logo (payment methods' icons are required):
-
-  ![Operation Flow](/images/var_2_en.png)
-
-* If API QIWI is the only one method on your checkout, 'QIWI' or QIWI logo is not required. Show payment methods' icons under a payment button:
-
-  ![Operation Flow](/images/var_3_en.png)
-
-## Logos {#logos}
-
-  <a href="/images/QIWI_Kassa.svg" download>Download logo</a>
-
-  <a href="/images/icons.svg" download>Download payment methods' icons</a>
