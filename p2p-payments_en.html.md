@@ -26,9 +26,9 @@ toc_footers:
 
 # P2P Invoices {#introduction}
 
-###### Last update: 2020-05-07 | [Edit on GitHub](https://github.com/QIWI-API/bill-payments-docs/blob/master/p2p-payments_en.html.md)
+###### Last update: 2020-05-12 | [Edit on GitHub](https://github.com/QIWI-API/p2p-payments-docs/blob/master/p2p-payments_en.html.md)
 
-P2P Invoices opens a way to operations with invoices from your service or application. Invoice is the unique request for the payment. The user may pay the invoice with any accessible means. API supports  issuing and cancelling invoices, making refunds and checking operation status.
+P2P Invoices API opens a way to operations with invoices from your service or application. Invoice is the unique request for the payment. The user may pay the invoice with any accessible means. API supports  issuing and cancelling invoices, making refunds and checking operation status.
 
 **To use API,  you need public and secret keys. Keys are available after registration and integration on [p2p.qiwi.com](https://p2p.qiwi.com).**
 
@@ -55,7 +55,7 @@ P2P Invoices opens a way to operations with invoices from your service or applic
 
 API requests from the merchant's side are authorized by the API secret key (`SECRET_KEY`). Put this parameter to <i>Authorization</i> header, as "Bearer SECRET_KEY".
 
-Public key (`PUBLIC_KEY`) is used when issuing invoices via the Payment Form.
+Public key (`PUBLIC_KEY`) is used when issuing invoices via [the Payment Form](#http).
 
 **Keys are available after registration and integration [p2p.qiwi.com](https://p2p.qiwi.com) .**
 
