@@ -1,11 +1,11 @@
 ---
-title: P2P Invoices 1.0.0
+title: API P2P Invoices 1.0.0
 
 search: true
 
-metatitle: P2P Invoices  1.0.0
+metatitle: API P2P Invoices  1.0.0
 
-metadescription: P2P Invoices opens a way to operate with invoices from your service or application. Invoice is the unique request for the payment. By default, the user may pay the invoice with any accessible means. API supports issuing and cancelling invoices, making refunds and checking operation status.
+metadescription: API P2P Invoices opens a way to operate with invoices from your service or application. Invoice is the unique request for the payment. By default, the user may pay the invoice with any accessible means. API supports issuing and cancelling invoices, making refunds and checking operation status.
 
 language_tabs:
   - shell
@@ -38,13 +38,13 @@ P2P Invoices API opens a way to operations with invoices from your service or ap
 
 * User submits an order on the merchant’s website.
 
-* Merchant redirects the user to [Payment Form](#http) link to issue an invoice for the order and to make the user pay for it. Or [issues an invoice by API](#create) and redirects to the Payment Form.
+* Merchant redirects the user to [Payment Form](#http) link. It automatically issues an invoice for the order. Or you may [issue an invoice by API](#create) and [redirects to the Payment Form](#option).
 
 * The user chooses the most convenient way to pay for the invoice on the Payment Form. By default, the optimal payment method is showed first.
 
 * The merchant's service receives [notification](#notification) once the invoice is successfully paid by the user. You need to configure notifications on your [Personal Page](https://p2p.qiwi.com). Notifications contain authorization parameters which merchant needs to verify on its server.
 
-* If needed, via [Bill Payments REST API](#bill-payments-api) merchant can:
+* If needed, via the API merchant can:
   * [request current status](#invoice-status) of the invoice,
   * [cancel invoice](#cancel) (if the user has not initiated payment yet).
 
@@ -59,7 +59,7 @@ Public key (`PUBLIC_KEY`) is used when issuing invoices via [the Payment Form](#
 
 **Keys are available after registration and integration [p2p.qiwi.com](https://p2p.qiwi.com) .**
 
-<aside class="notice">
+<aside class="warning">
 Do not share secret key to third parties!
 </aside>
 
@@ -106,7 +106,7 @@ It is the reliable method for integration. Parameters are sent by means of serve
 **[Additional features](#option)**
 
 <aside class="notice">
-For testing purposes, you can create and pay bills for 1 ruble.
+For testing purposes, you can always create and pay bills for 1 ruble.
 </aside>
 
 <h3 class="request method">Request → PUT</h3>
@@ -132,16 +132,16 @@ curl https://api.qiwi.com/partner/bill/v1/bills/893794793973 \
 -H 'Accept: application/json' \
 -H 'Content-Type: application/json' \
 -H 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************'
--d '{
-   "amount": {
-     "currency": "RUB",
-     "value": 100.00
-   },
-   "comment": "Text comment",
-   "expirationDateTime": "2018-04-13T14:30:00+03:00",
-   "customer": {},
-   "customFields": {}
-   }
+-d '{ \
+   "amount": { \
+     "currency": "RUB", \
+     "value": 100.00 \
+   }, \
+   "comment": "Text comment", \
+   "expirationDateTime": "2018-04-13T14:30:00+03:00", \
+   "customer": {}, \
+   "customFields": {} \
+   }'
 ~~~
 
 ~~~php
@@ -209,14 +209,16 @@ var response = client.createBill(billInfo);
 Parameter|Description|Type|Required
 ---------|--------|---|---------|---|----
 billId|Unique invoice identifier in merchant's system|String(200)|+
-amount.currency| invoice amount rounded down to two decimals | (Alpha-3 ISO 4217 code)|+
+amount|Object|Data of the invoice amount|+
+amount.currency| invoice amount currency code | (Alpha-3 ISO 4217 code)|+
 amount.value| Amount of the invoice rounded down to two decimals | Number(6.2)|+
-phone | Phone number of the client to which the invoice is issuing (international format) |string|-
-email | E-mail of the client where the invoice payment link will be sent |string|-
-account | Client identifier in merchant's system |string |-
+expirationDateTime |  Invoice due date. Time should be specified with time zone. |string<br>`YYYY-MM-DDThhmm+\-hh:mm`|+
+customer|Object | Customer data of the invoice subject|-
+customer.phone | Phone number of the client to which the invoice is issuing (international format) |string|-
+customer.email | E-mail of the client where the invoice payment link will be sent |string|-
+customer.account | Client identifier in merchant's system |string |-
 comment | Invoice commentary|String(255)|-
 customFields[]|Additional invoice data|String(255)|-
-expirationDateTime |  invoice due date. Time should be specified with time zone. |string<br>`YYYY-MM-DDThhmm+\-hh:mm`|+
 
 
 
@@ -278,9 +280,11 @@ Parameter|Type|Description
 --------|---|--------
 billId|String|Unique invoice identifier in the merchant's system
 siteId|String|Merchant's site identifier in p2p.qiwi
+amount|Object|Data of the invoice amount
 amount.value|String|The invoice amount. The number is rounded down to two decimals
-amount.currency|String|Currency identifier of the invoice (Alpha-3 ISO 4217 code)
-status.value|String | String representation of the status
+amount.currency|String|Currency identifier of the invoice amount (Alpha-3 ISO 4217 code)
+status|Object|Data of the invoice current status
+status.value|String | String representation of the status. [Possible statuses](#status)
 status.changedDateTime|String|Status refresh date. Date format:<br>`YYYY-MM-DDThh:mm:ss±hh`
 customer|Object | Customer data of the invoice subject
 customer.phone|String | The customer’s phone (if specified in the invoice)
@@ -353,7 +357,7 @@ Signature verification algorithm is as follows:
 
     `invoice_parameters = {amount.currency}|{amount.value}|{billId}|{siteId}|{status.value}`
 
-    where `{*}` is the value of the notification parameter. All values should be treated as strings.
+    where `{*}` is the value of the parameter. All values should be treated as strings.
 
 2. Apply HMAC-SHA256 function:
 
@@ -448,7 +452,7 @@ bill.billId|Invoice identifier in the merchant's system|String(200)
 bill.siteId|Merchant's site identifier in p2p.qiwi |String
 bill.amount|The invoice amount data|Object
 amount.value|The invoice amount. The number is rounded down to two decimals|Number(6.2)
-amount.currency|Currency identifier of the invoice (Alpha-3 ISO 4217 code)|String(3)
+amount.currency|Currency identifier of the invoice amount (Alpha-3 ISO 4217 code)|String(3)
 bill.status|Invoice status data|Object
 status.value|Current [invoice status](#status)|String
 status.changedDateTime|Status refresh date. Date format:<br>`YYYY-MM-DDThh:mm:ssZ`|String
@@ -474,7 +478,7 @@ Content-Type: application/json
 }
 ~~~
 
-After receiving inbound notification request, you should verify its signature and returns the JSON-response. The processing result code should be returned in response.
+After receiving incoming notification request, you should verify its signature and returns the JSON-response. The processing result code should be returned in response.
 
 <aside class="notice">
 Any response with HTTP status code other than 200 (OK) will be treated as a temporary merchant's service error. QIWI server repeats the notification request with increasing period within the next 24 hours.
@@ -607,7 +611,7 @@ billId|String|Unique invoice identifier in the merchant's system
 siteId|String|Merchant's site identifier in p2p.qiwi
 amount|Object|The invoice amount data
 amount.value|Number|The invoice amount. The number is rounded down to two decimals
-amount.currency|String|Currency identifier of the invoice (Alpha-3 ISO 4217 code)
+amount.currency|String|Currency identifier of the invoice amount (Alpha-3 ISO 4217 code)
 status|Object|Invoice status data
 status.value|String|Current [invoice status](#status)
 status.changedDateTime|String|Status refresh date
@@ -743,7 +747,7 @@ billId|String|Unique invoice identifier in the merchant's system
 siteId|String|Merchant's site identifier in p2p.qiwi
 amount|Object|The invoice amount data
 amount.value|Number|The invoice amount. The number is rounded down to two decimals
-amount.currency|String|Currency identifier of the invoice (Alpha-3 ISO 4217 code)
+amount.currency|String|Currency identifier of the invoice amount (Alpha-3 ISO 4217 code)
 status|Object|Invoice status data
 status.value|String|Current [invoice status](#status)
 status.changedDateTime|String|Status refresh date
@@ -901,21 +905,21 @@ curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfm
  >Invoice Issue by API
 
 ~~~shell
-curl https://api.qiwi.com/partner/bill/v1/bills/893794793973
--X PUT
--H 'Accept: application/json'
--H 'Content-Type: application/json'
--H 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************'
--d '{
-   "amount": {  
-     "currency": "RUB",  
-     "value": 100.00
-   },
-   "comment": "Text comment",
-   "expirationDateTime": "2018-04-13T14:30:00+03:00",
-   "customer": {},
-   "customFields": {"themeCode":"codeStyle"}
-   }
+curl https://api.qiwi.com/partner/bill/v1/bills/893794793973 \
+-X PUT \
+-H 'Accept: application/json' \
+-H 'Content-Type: application/json' \
+-H 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************' \
+-d '{ \
+   "amount": {  \
+     "currency": "RUB",  \
+     "value": 100.00 \
+   }, \
+   "comment": "Text comment", \
+   "expirationDateTime": "2018-04-13T14:30:00+03:00", \
+   "customer": {}, \
+   "customFields": {"themeCode":"codeStyle"} \
+ }'
 ~~~
 
 ![Customer form](/images/Custom.png)
@@ -935,7 +939,7 @@ The library has two methods: create a new invoice and open an existing one.
 
 ###  Create new invoice {#createpopup}
 
-Call function  `QiwiCheckout.createInvoice`
+Call function  `QiwiCheckout.createInvoice`.
 
 | Parameter | Description | Type | Required |
 |--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|--------------|
@@ -976,7 +980,8 @@ QiwiCheckout.createInvoice(params)
 
 
 ###  Open an existing invoice {#openpopup}
-Call function  `QiwiCheckout.openInvoice`
+
+Call function  `QiwiCheckout.openInvoice`.
 
 | Parameter | Description | Type | Required |
 |--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|--------------|
@@ -1000,7 +1005,7 @@ QiwiCheckout.openInvoice(params)
 
 
 
-## Invoice opening options {#option}
+## Payment Form options {#option}
 
 <aside class="notice">
 When opening Payment Form in Webview on Android, you should enable <code>settings.setDomStorageEnabled(true)</code>
