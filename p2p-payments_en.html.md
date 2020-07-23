@@ -237,7 +237,7 @@ When opening Payment Form in Webview on Android, you should enable <code>setting
 </ul>
 
 Parameter|Description|Type|Required
----------|--------|---|---------|---|----
+---------|--------|---|--------
 publicKey | Merchant public key received in p2p.qiwi|String|+
 billId|Unique invoice identifier in merchant's system|URL-encoded, String(200)|-
 amount| Amount of the invoice rounded down on two decimals | Number(6.2)|-
@@ -379,7 +379,7 @@ var response = client.createBill(billInfo);
 </ul>
 
 Parameter|Description|Type|Required
----------|--------|---|---------|---|----
+---------|--------|---|--------
 billId|Unique invoice identifier in merchant's system|String(200)|+
 amount|Object|Data of the invoice amount|+
 amount.currency| Invoice amount currency code. Only `RUB` | Alpha-3 ISO 4217 code |+
@@ -999,8 +999,8 @@ The library has two methods: create a new invoice and open an existing one.
 
 Call function  `QiwiCheckout.createInvoice`.
 
-| Parameter | Description | Type | Required |
-|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|--------------|
+| Parameter | Description | Type | Required|
+|-------------|--------|-------------|-----|
 | publicKey | Merchant public key received in p2p.qiwi | String | + |
 | amount | Amount of the invoice rounded down on two decimals | Number(6.2) | + |
 | phone | Phone number of the client to which the invoice is issuing (international format) | String | - |
@@ -1042,7 +1042,7 @@ QiwiCheckout.createInvoice(params)
 Call function  `QiwiCheckout.openInvoice`.
 
 | Parameter | Description | Type | Required |
-|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|--------------|
+|--------------|------------|-------------|--------------|
 | payUrl | Pay form link| String | + |
 
 >Open an existing one
@@ -1079,7 +1079,7 @@ curl https://oplata.qiwi.com/form?invoiceUid=606a5f75-4f8e-4ce2-b400-96717950227
 You can add parameters to URL from `payUrl` field in response to the [invoice request](#create).
 
 | Parameter | Description | Type |
-|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
+|--------------|------------|-------------|
 | paySource |Pre-selected payment method for the client on Payment Form. Possible values: <br>`qw` - QIWI Wallet<br>`card` - card payment <br>`mobile` - mobile account payment <br>`sovest` - Sovest card payment <br> When specified method is inaccessible, the page automatically selects recommended method for the user.| String |
 | allowedPaySources |Allow only these payment methods for the client on Payment Form. Possible values: <br>`qw` - QIWI Wallet<br>`card` - card payment <br>`mobile` - mobile account payment <br>`sovest` - Sovest card payment <br> | comma separated string |
 | successUrl | The URL to which the client will be redirected in case of successful payment from its QIWI Wallet balance. When payment is by any other means, redirection is not performed. URL must belong to the merchant. | URL-encoded string |
