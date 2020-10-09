@@ -9,11 +9,11 @@ metadescription: API P2P Invoices opens a way to operate with invoices from your
 
 language_tabs:
   - shell
-  - javascript: Node.js SDK
   - php: PHP SDK
+  - javascript: Node.js SDK
   - java: Java SDK
-  - ppp: Popup
   - csharp: .Net SDK
+  - ppp: Popup
 
 services:
  - <a href='#'>Swagger</a>  |  <a href='#'>Qiwi Demo</a>
@@ -94,7 +94,24 @@ end
 * When the invoice payment is confirmed, merchant delivers ordered services/goods.
 
 
-## Authorization {#auth}
+# SDK and CMS
+
+## SDK and Libraries {#sdk}
+
+* [NODE JS SDK](https://github.com/QIWI-API/bill-payments-node-js-sdk) - Node JS package of ready-to-use solutions for server2server integration development.
+* [PHP SDK](https://github.com/QIWI-API/bill-payments-php-sdk) -  PHP package of ready-to-use solutions for server2server integration development.
+* [Java SDK](https://github.com/QIWI-API/bill-payments-java-sdk) - Java package of ready-to-use solutions for server2server integration development.
+* [.Net SDK ](https://github.com/QIWI-API/bill-payments-dotnet-sdk) - C# .net package of ready-to-use solutions for server2server integration development.
+
+## CMS Solutions {#cms}
+
+* [Wordpress](https://wordpress.org/plugins/woo-qiwi-payment-gateway/) -  plugin for Woocommerce for work with orders
+* [Online Leyka](https://wordpress.org/plugins/leyka/) -  Wordpress plagin for charity
+* [1С-Bitrix](http://marketplace.1c-bitrix.ru/solutions/qiwikassa.checkout/) - plugin for work with orders
+* [Opencart](https://www.opencart.com/index.php?route=marketplace/extension/info&member_token=nH5fDsH3A5OkPF4zOe82hS0ypOhIqSEr&extension_id=36833) - plugin for work with orders
+* [PrestaShop](https://github.com/QIWI-API/prestashop-payment-qiwi/releases) - plugin for work with orders
+
+# Authorization {#auth}
 
 ~~~javascript
 const QiwiBillPaymentsAPI = require('bill-payments-node-js-sdk');
@@ -140,6 +157,7 @@ Public key (`PUBLIC_KEY`) is used when issuing invoices via [the Payment Form](#
 Do not share secret key to third parties!
 </aside>
 
+
 # Invoice Issue on Payment Form {#http}
 
 <aside class="notice">
@@ -167,7 +185,7 @@ $publicKey = '2tbp1WQvsgQeziGY9vTLe9vDZNg7tmCymb4Lh6STQokqKrpCC6qrUUKEDZAJ7mvFnz
 $params = [
   'publicKey' => $publicKey,
   'amount' => 200,
-  'billId' => '893794793973'
+  'billId' => 'cc961e8d-d4d6-4f02-b737-2297e51fb48e'
 ];
 
 /** @var \Qiwi\Api\BillPayments $billPayments */
@@ -185,7 +203,7 @@ String publicKey = "2tbp1WQvsgQeziGY9vTLe9vDZNg7tmCymb4Lh6STQokqKrpCC6qrUUKEDZAJ
         Currency.getInstance("RUB")
 );
 String billId = UUID.randomUUID().toString();
-String successUrl = "https://merchant.com/payment/success?billId=893794793973";
+String successUrl = "https://merchant.com/payment/success?billId=cc961e8d-d4d6-4f02-b737-2297e51fb48e";
  String paymentUrl = client.createPaymentForm(new PaymentInfo(key, amount, billId, successUrl));
 ~~~
 
@@ -198,7 +216,7 @@ var amount = new MoneyAmount
     CurrencyEnum = CurrencyEnum.Rub
 };
 var billId = Guid.NewGuid().ToString();
-var successUrl = "https://merchant.com/payment/success?billId=893794793973";
+var successUrl = "https://merchant.com/payment/success?billId=cc961e8d-d4d6-4f02-b737-2297e51fb48e";
 
 var paymentUrl = client.createPaymentForm(new PaymentInfo(key, amount, billId, successUrl));
 ~~~
@@ -216,7 +234,7 @@ const publicKey = 'Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******';
 const params = {
     publicKey,
     amount: 42.24,
-    billId: '893794793973',
+    billId: 'cc961e8d-d4d6-4f02-b737-2297e51fb48e',
     successUrl: 'http://test.ru/',
     email: 'm@ya.ru'
 };
@@ -225,7 +243,7 @@ const link = qiwiApi.createPaymentForm(params);
 ~~~
 
 ~~~shell
-curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&billId=893794793973&successUrl=http%3A%2F%2Ftest.ru%3F&email=m@ya.ru
+curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&billId=cc961e8d-d4d6-4f02-b737-2297e51fb48e&successUrl=http%3A%2F%2Ftest.ru%3F&email=m@ya.ru
 ~~~
 
 <aside class="notice">
@@ -265,7 +283,7 @@ For testing purposes, you can always create and pay bills for 1 ruble.
 <h3 class="request method">Request → PUT</h3>
 
 ~~~javascript
-const billId = '893794793973';
+const billId = 'cc961e8d-d4d6-4f02-b737-2297e51fb48e';
 
 const fields = {
     amount: 1.00,
@@ -274,13 +292,13 @@ const fields = {
     expirationDateTime: '2018-03-02T08:44:07'
 };
 
-qiwiRestApi.createBill( billId, fields ).then( data => {
+qiwiApi.createBill( billId, fields ).then( data => {
     //do smth with data
 });
 ~~~
 
 ~~~shell
-curl https://api.qiwi.com/partner/bill/v1/bills/893794793973 \
+curl https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e \
 -X PUT \
 -H 'Accept: application/json' \
 -H 'Content-Type: application/json' \
@@ -300,7 +318,7 @@ curl https://api.qiwi.com/partner/bill/v1/bills/893794793973 \
 ~~~php
 <?php
 
-$billId = '893794793973';
+$billId = 'cc961e8d-d4d6-4f02-b737-2297e51fb48e';
 $fields = [
   'amount' => 1.00,
   'currency' => 'RUB',
@@ -400,7 +418,7 @@ customFields[]|Additional invoice data|String(255)|-
 ~~~json
   {
     "siteId": "23044",
-    "billId": "893794793973",
+    "billId": "cc961e8d-d4d6-4f02-b737-2297e51fb48e",
     "amount": {
       "value": 100,
       "currency": "RUB"
@@ -466,7 +484,7 @@ Use this method to get current invoice payment status. We recommend using it aft
 <h3 class="request method">Request → GET</h3>
 
 ~~~javascript
-const billId = '893794793973';
+const billId = 'cc961e8d-d4d6-4f02-b737-2297e51fb48e';
 
 qiwiApi.getBillInfo(billId).then( data => {
     //do smth ith data
@@ -474,7 +492,7 @@ qiwiApi.getBillInfo(billId).then( data => {
 ~~~
 
 ~~~shell
-curl https://api.qiwi.com/partner/bill/v1/bills/893794793973 \
+curl https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e \
 -X GET \
 -H 'Accept: application/json' \
 -H 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************'
@@ -483,7 +501,7 @@ curl https://api.qiwi.com/partner/bill/v1/bills/893794793973 \
 ~~~php
 <?php
 
-$billId = '893794793973';
+$billId = 'cc961e8d-d4d6-4f02-b737-2297e51fb48e';
 
 /** @var \Qiwi\Api\BillPayments $billPayments */
 $response = $billPayments->getBillInfo($billId);
@@ -529,7 +547,7 @@ var response = client.getBillInfo(billId);
 ~~~json
  {
     "siteId": "23044",
-    "billId": "893794793973",
+    "billId": "cc961e8d-d4d6-4f02-b737-2297e51fb48e",
     "amount": {
       "value": 2.42,
       "currency": "RUB"
@@ -602,7 +620,7 @@ Use this method to cancel unpaid invoice.
 <h3 class="request method">Request → POST</h3>
 
 ~~~javascript
-const bill_id = '893794793973';
+const bill_id = 'cc961e8d-d4d6-4f02-b737-2297e51fb48e';
 
 qiwiApi.cancelBill(billId).then( data => {
     //do smth with data
@@ -610,7 +628,7 @@ qiwiApi.cancelBill(billId).then( data => {
 ~~~
 
 ~~~shell
-curl https://api.qiwi.com/partner/bill/v1/bills/893794793973/reject \
+curl https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e/reject \
 -X POST \
 -H 'Accept: application/json' \
 -H 'Content-Type: application/json' \
@@ -620,7 +638,7 @@ curl https://api.qiwi.com/partner/bill/v1/bills/893794793973/reject \
 ~~~php
 <?php
 
-$billId = '893794793973';
+$billId = 'cc961e8d-d4d6-4f02-b737-2297e51fb48e';
 
 /** @var \Qiwi\Api\BillPayments $billPayments */
 $response = $billPayments->cancelBill($billId);
@@ -666,7 +684,7 @@ var response = client.cancelBill(billId);
 ~~~json
 {
     "siteId": "23044",
-    "billId": "893794793973",
+    "billId": "cc961e8d-d4d6-4f02-b737-2297e51fb48e",
     "amount": {
       "value": 2.42,
       "currency": "RUB"
@@ -945,6 +963,27 @@ After receiving incoming notification request, you should verify its signature a
 Any response with HTTP status code other than 200 (OK) will be treated as a temporary merchant's service error. QIWI server repeats the notification request with increasing period within the next 24 hours.
 </aside>
 
+# Payment Form options {#option}
+
+<aside class="notice">
+When opening Payment Form in Webview on Android, you should enable <code>settings.setDomStorageEnabled(true)</code>
+</aside>
+
+
+> Invoice URL example
+
+~~~shell
+curl https://oplata.qiwi.com/form?invoiceUid=606a5f75-4f8e-4ce2-b400-967179502275&allowedPaySources=card
+~~~
+
+You can add parameters to URL from `payUrl` field in response to the [invoice request](#create).
+
+| Parameter | Description | Type |
+|--------------|------------|-------------|
+| paySource |Pre-selected payment method for the client on Payment Form. Possible values: <br>`qw` - QIWI Wallet<br>`card` - card payment <br>`mobile` - mobile account payment <br> When specified method is inaccessible, the page automatically selects recommended method for the user.| String |
+| allowedPaySources |Allow only these payment methods for the client on Payment Form. Possible values: <br>`qw` - QIWI Wallet<br>`card` - card payment <br>`mobile` - mobile account payment <br>| comma separated string |
+| successUrl | The URL to which the client will be redirected in case of successful payment from its QIWI Wallet balance. When payment is by any other means, redirection is not performed. URL must belong to the merchant. | URL-encoded string |
+| lifetime | Expiration date of the pay form link (invoice payment’s due date). If the invoice is not paid after that date, the invoice assigns EXPIRED final status and it becomes void. Important! Invoice will be automatically expired when 45 days is passed after the invoicing date| String<br>`YYYY-MM-DDThhmm` |
 
 # Personalization {#custom}
 
@@ -957,13 +996,13 @@ When setting up, you create a code linked to the style (for example, `codeStyle`
  >Invoice Issue on Payment Form
 
 ~~~shell
-curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&billId=893794793973&successUrl=http%3A%2F%2Ftest.ru%3F&customFields%5BthemeCode%5D=codeStyle
+curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&billId=cc961e8d-d4d6-4f02-b737-2297e51fb48e&successUrl=http%3A%2F%2Ftest.ru%3F&customFields%5BthemeCode%5D=codeStyle
 ~~~
 
  >Invoice Issue by API
 
 ~~~shell
-curl https://api.qiwi.com/partner/bill/v1/bills/893794793973 \
+curl https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e \
 -X PUT \
 -H 'Accept: application/json' \
 -H 'Content-Type: application/json' \
@@ -1061,43 +1100,3 @@ QiwiCheckout.openInvoice(params)
     })
 ~~~
 
-
-
-# Payment Form options {#option}
-
-<aside class="notice">
-When opening Payment Form in Webview on Android, you should enable <code>settings.setDomStorageEnabled(true)</code>
-</aside>
-
-
-> Invoice URL example
-
-~~~shell
-curl https://oplata.qiwi.com/form?invoiceUid=606a5f75-4f8e-4ce2-b400-967179502275&allowedPaySources=card
-~~~
-
-You can add parameters to URL from `payUrl` field in response to the [invoice request](#create).
-
-| Parameter | Description | Type |
-|--------------|------------|-------------|
-| paySource |Pre-selected payment method for the client on Payment Form. Possible values: <br>`qw` - QIWI Wallet<br>`card` - card payment <br>`mobile` - mobile account payment <br>`sovest` - Sovest card payment <br> When specified method is inaccessible, the page automatically selects recommended method for the user.| String |
-| allowedPaySources |Allow only these payment methods for the client on Payment Form. Possible values: <br>`qw` - QIWI Wallet<br>`card` - card payment <br>`mobile` - mobile account payment <br>`sovest` - Sovest card payment <br> | comma separated string |
-| successUrl | The URL to which the client will be redirected in case of successful payment from its QIWI Wallet balance. When payment is by any other means, redirection is not performed. URL must belong to the merchant. | URL-encoded string |
-| lifetime | Expiration date of the pay form link (invoice payment’s due date). If the invoice is not paid after that date, the invoice assigns EXPIRED final status and it becomes void. Important! Invoice will be automatically expired when 45 days is passed after the invoicing date| String<br>`YYYY-MM-DDThhmm` |
-
-# SDK and CMS
-
-## SDK and Libraries {#sdk}
-
-* [NODE JS SDK](https://github.com/QIWI-API/bill-payments-node-js-sdk) - Node JS package of ready-to-use solutions for server2server integration development.
-* [PHP SDK](https://github.com/QIWI-API/bill-payments-php-sdk) -  PHP package of ready-to-use solutions for server2server integration development.
-* [Java SDK](https://github.com/QIWI-API/bill-payments-java-sdk) - Java package of ready-to-use solutions for server2server integration development.
-* [.Net SDK ](https://github.com/QIWI-API/bill-payments-dotnet-sdk) - C# .net package of ready-to-use solutions for server2server integration development.
-
-## CMS Solutions {#cms}
-
-* [Wordpress](https://wordpress.org/plugins/woo-qiwi-payment-gateway/) -  plugin for Woocommerce for work with orders
-* [Online Leyka](https://wordpress.org/plugins/leyka/) -  Wordpress plagin for charity
-* [1С-Bitrix](http://marketplace.1c-bitrix.ru/solutions/qiwikassa.checkout/) - plugin for work with orders
-* [Opencart](https://www.opencart.com/index.php?route=marketplace/extension/info&member_token=nH5fDsH3A5OkPF4zOe82hS0ypOhIqSEr&extension_id=36833) - plugin for work with orders
-* [PrestaShop](https://github.com/QIWI-API/prestashop-payment-qiwi/releases) - plugin for work with orders

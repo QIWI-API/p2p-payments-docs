@@ -11,11 +11,11 @@ metadescription: API P2P-счетов открывает доступ к опе�
 
 language_tabs:
   - shell
-  - javascript: Node.js SDK
   - php: PHP SDK
+  - javascript: Node.js SDK
   - java: Java SDK
-  - ppp: Popup
   - csharp: .Net SDK
+  - ppp: Popup
 
 services:
  - <a href='#'>Swagger</a>  |  <a href='#'>Qiwi Demo</a>
@@ -100,7 +100,25 @@ end
   * [выполнить перевод на карту](https://developer.qiwi.com/ru/qiwi-wallet-personal/#cards),
   * другие возможности - подробнее в [документации](https://developer.qiwi.com/ru/qiwi-wallet-personal/#payments).
 
-## Авторизация {#auth}
+
+# Готовые решения
+
+## SDK и библиотеки {#sdk}
+
+* [NODE JS SDK](https://github.com/QIWI-API/bill-payments-node-js-sdk) - Готовое решение для разработки server2server интеграции c помощью Node.js.
+* [PHP SDK](https://github.com/QIWI-API/bill-payments-php-sdk) - Готовое решение для разработки server2server интеграции c помощью PHP.
+* [Java SDK](https://github.com/QIWI-API/bill-payments-java-sdk) - Готовое решение для разработки server2server интеграции c помощью Java.
+* [.Net SDK](https://github.com/QIWI-API/bill-payments-dotnet-sdk) - Готовое решение для разработки server2server интеграции c помощью C# .Net.
+
+## Решения для CMS {#cms}
+
+* [Wordpress](https://wordpress.org/plugins/woo-qiwi-payment-gateway/) -  расширение под Woocommerce для работы с заказами
+* [Онлайн Лейка](https://wordpress.org/plugins/leyka/) -  Wordpress расширение для благотворительности
+* [1С-Битрикс](http://marketplace.1c-bitrix.ru/solutions/qiwikassa.checkout/) - решение для работы с заказами
+* [Opencart](https://www.opencart.com/index.php?route=marketplace/extension/info&member_token=nH5fDsH3A5OkPF4zOe82hS0ypOhIqSEr&extension_id=36833) - решение для работы с заказами
+* [PrestaShop](https://github.com/QIWI-API/prestashop-payment-qiwi/releases) - решение для работы с заказами
+
+# Авторизация {#auth}
 
 ~~~javascript
 const QiwiBillPaymentsAPI = require('bill-payments-node-js-sdk');
@@ -169,7 +187,7 @@ const publicKey = 'Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******';
 const params = {
     publicKey,
     amount: 42.24,
-    billId: '893794793973',
+    billId: 'cc961e8d-d4d6-4f02-b737-2297e51fb48e',
     successUrl: 'http://test.ru/',
     email: 'm@ya.ru'
 };
@@ -178,7 +196,7 @@ const link = qiwiApi.createPaymentForm(params);
 ~~~
 
 ~~~shell
-curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&billId=893794793973&successUrl=http%3A%2F%2Ftest.ru%3F&email=m@ya.ru
+curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&billId=cc961e8d-d4d6-4f02-b737-2297e51fb48e&successUrl=http%3A%2F%2Ftest.ru%3F&email=m@ya.ru
 ~~~
 
 ~~~php
@@ -188,7 +206,7 @@ $publicKey = '2tbp1WQvsgQeziGY9vTLe9vDZNg7tmCymb4Lh6STQokqKrpCC6qrUUKEDZAJ7mvFnz
 $params = [
   'publicKey' => $publicKey,
   'amount' => 200,
-  'billId' => '893794793973'
+  'billId' => 'cc961e8d-d4d6-4f02-b737-2297e51fb48e'
 ];
 
 /** @var \Qiwi\Api\BillPayments $billPayments */
@@ -206,7 +224,7 @@ String publicKey = "2tbp1WQvsgQeziGY9vTLe9vDZNg7tmCymb4Lh6STQokqKrpCC6qrUUKEDZAJ
         Currency.getInstance("RUB")
 );
 String billId = UUID.randomUUID().toString();
-String successUrl = "https://merchant.com/payment/success?billId=893794793973";
+String successUrl = "https://merchant.com/payment/success?billId=cc961e8d-d4d6-4f02-b737-2297e51fb48e";
  String paymentUrl = client.createPaymentForm(new PaymentInfo(key, amount, billId, successUrl));
 ~~~
 
@@ -220,7 +238,7 @@ var amount = new MoneyAmount
     CurrencyEnum = CurrencyEnum.Rub
 };
 var billId = Guid.NewGuid().ToString();
-var successUrl = "https://merchant.com/payment/success?billId=893794793973";
+var successUrl = "https://merchant.com/payment/success?billId=cc961e8d-d4d6-4f02-b737-2297e51fb48e";
 
 var paymentUrl = client.createPaymentForm(new PaymentInfo(key, amount, billId, successUrl));
 ~~~
@@ -258,7 +276,7 @@ successUrl|URL для переадресации в случае успешно�
 
 
 <aside class="notice">
-Для тестирования и отладки сервиса не рекомендуем выставлять и оплачивать счета суммой более 1 рубля.
+Для тестирования и отладки сервиса рекомендуем выставлять и оплачивать счета суммой 1 рубль.
 </aside>
 
 **Ознакомьтесь со статьями [Кошелек заблокирован. Что делать?](https://qiwi.com/support/security/subject21/razblokirovat-koshelek) и [Как избежать блокировки кошелька](https://qiwi.com/support/products/p2p/kak_izbezhat_blokirovki_koshelka).**
@@ -266,7 +284,7 @@ successUrl|URL для переадресации в случае успешно�
 <h3 class="request method">Запрос → PUT</h3>
 
 ~~~javascript
-const billId = '893794793973';
+const billId = 'cc961e8d-d4d6-4f02-b737-2297e51fb48e';
 
 const fields = {
     amount: 1.00,
@@ -275,13 +293,13 @@ const fields = {
     expirationDateTime: '2018-03-02T08:44:07+03:00'
 };
 
-qiwiRestApi.createBill( billId, fields ).then( data => {
+qiwiApi.createBill( billId, fields ).then( data => {
     //do with data
 });
 ~~~
 
 ~~~shell
-  curl --location --request PUT 'https://api.qiwi.com/partner/bill/v1/bills/893794793973' \ 
+  curl --location --request PUT 'https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e' \ 
 --header 'content-type: application/json' \ 
 --header 'accept: application/json' \ 
 --header 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************' \ 
@@ -300,7 +318,7 @@ qiwiRestApi.createBill( billId, fields ).then( data => {
 ~~~php
 <?php
 
-$billId = '893794793973';
+$billId = 'cc961e8d-d4d6-4f02-b737-2297e51fb48e';
 $fields = [
   'amount' => 1.00,
   'currency' => 'RUB',
@@ -384,7 +402,7 @@ client.CreateBill(
 
 Параметр|Описание|Тип|Обяз.
 ---------|--------|---|---------
-billId|Уникальный идентификатор выставляемого счета в вашей системе|string|+
+billId|Идентификатор счета в вашей системе, он должен быть уникальным для каждого счета и генерироваться на вашей стороне |string|+
 amount|Данные о сумме счета|Object|+
 amount.value| Сумма, на которую выставляется счет, округленная в меньшую сторону до 2 десятичных знаков | Number(6.2)|+
 amount.currency| Валюта суммы счета. Доступна только Рубли (`RUB`)| Alpha-3 ISO 4217 код |+
@@ -394,7 +412,7 @@ customer.phone | Номер телефона пользователя (в меж
 customer.email | E-mail пользователя |string|-
 customer.account | Идентификатор пользователя в вашей системе|string|-
 comment | Комментарий к счету|String(255)|-
-customFields[]|Дополнительные данные счета|String(255)|-
+customFields[]|Дополнительные данные счета. Так же при помощи этого параметра вы можете настроить [персонализацию](#custom) вашей формы, передав переменную `themeCode`|String(255)|-
 
 
 
@@ -405,7 +423,7 @@ customFields[]|Дополнительные данные счета|String(255)|
 ~~~json
   {
     "siteId": "23044",
-    "billId": "893794793973",
+    "billId": "cc961e8d-d4d6-4f02-b737-2297e51fb48e",
     "amount": {
       "value": 100,
       "currency": "RUB"
@@ -445,7 +463,7 @@ customFields[]|Дополнительные данные счета|String(255)|
 
 Поле|Тип|Описание
 --------|---|--------
-billId|String|Уникальный идентификатор выставляемого счета в вашей системе
+billId|String|Идентификатор счета в вашей системе, он должен быть уникальным для каждого счета и генерироваться на вашей стороне
 siteId|String|Ваш идентификатор в системе p2p.qiwi
 amount|Object|Данные о сумме счета
 amount.value|Number|Сумма счета, округленная до 2 знаков после запятой в меньшую сторону
@@ -469,7 +487,7 @@ expirationDateTime|String|Срок действия созданной форм�
 <h3 class="request method">Запрос → GET</h3>
 
 ~~~javascript
-const billId = '893794793973';
+const billId = 'cc961e8d-d4d6-4f02-b737-2297e51fb48e';
 
 qiwiApi.getBillInfo(billId).then( data => {
     //do smth with data
@@ -477,7 +495,7 @@ qiwiApi.getBillInfo(billId).then( data => {
 ~~~
 
 ~~~shell
-curl https://api.qiwi.com/partner/bill/v1/bills/893794793973 \
+curl https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e \
 -X GET \
 -H 'Accept: application/json' \
 -H 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************'
@@ -486,7 +504,7 @@ curl https://api.qiwi.com/partner/bill/v1/bills/893794793973 \
 ~~~php
 <?php
 
-$billId = '893794793973';
+$billId = 'cc961e8d-d4d6-4f02-b737-2297e51fb48e';
 
 /** @var \Qiwi\Api\BillPayments $billPayments */
 $response = $billPayments->getBillInfo($billId);
@@ -497,12 +515,12 @@ print_r($response);
 ~~~
 
 ~~~java
-String billId = "fcb40a23-6733-4cf3-bacf-8e425fd1fc71";
+String billId = "cc961e8d-d4d6-4f02-b737-2297e51fb48e";
  BillResponse response = client.getBillInfo(billId);
 ~~~
 
 ~~~csharp
-var billId = "fcb40a23-6733-4cf3-bacf-8e425fd1fc71";
+var billId = "cc961e8d-d4d6-4f02-b737-2297e51fb48e";
 
 var response = client.getBillInfo(billId);
 ~~~
@@ -531,7 +549,7 @@ var response = client.getBillInfo(billId);
 ~~~json
   {
     "siteId": "23044",
-    "billId": "893794793973",
+    "billId": "cc961e8d-d4d6-4f02-b737-2297e51fb48e",
     "amount": {
       "value": 100,
       "currency": "RUB"
@@ -596,7 +614,7 @@ expirationDateTime|String|Срок действия созданной форм�
 <h3 class="request method">Запрос → POST</h3>
 
 ~~~javascript
-const bill_id = '893794793973';
+const bill_id = 'cc961e8d-d4d6-4f02-b737-2297e51fb48e';
 
 qiwiApi.cancelBill(billId).then( data => {
     //do with data
@@ -604,7 +622,7 @@ qiwiApi.cancelBill(billId).then( data => {
 ~~~
 
 ~~~shell
-curl https://api.qiwi.com/partner/bill/v1/bills/893794793973/reject \
+curl https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e/reject \
 -X POST \
 -H 'Accept: application/json' \
 -H 'Content-Type: application/json' \
@@ -614,7 +632,7 @@ curl https://api.qiwi.com/partner/bill/v1/bills/893794793973/reject \
 ~~~php
 <?php
 
-$billId = '893794793973';
+$billId = 'cc961e8d-d4d6-4f02-b737-2297e51fb48e';
 
 /** @var \Qiwi\Api\BillPayments $billPayments */
 $response = $billPayments->cancelBill($billId);
@@ -625,12 +643,12 @@ print_r($response);
 ~~~
 
 ~~~java
-String billId = "fcb40a23-6733-4cf3-bacf-8e425fd1fc71";
+String billId = "cc961e8d-d4d6-4f02-b737-2297e51fb48e";
  BillResponse response = client.cancelBill(billId);
 ~~~
 
 ~~~csharp
-var billId = "fcb40a23-6733-4cf3-bacf-8e425fd1fc71";
+var billId = "cc961e8d-d4d6-4f02-b737-2297e51fb48e";
 
 var response = client.cancelBill(billId);
 ~~~
@@ -660,7 +678,7 @@ var response = client.cancelBill(billId);
 ~~~json
  {
     "siteId": "23044",
-    "billId": "893794793973",
+    "billId": "cc961e8d-d4d6-4f02-b737-2297e51fb48e",
     "amount": {
       "value": 2.42,
       "currency": "RUB"
@@ -759,7 +777,7 @@ Host: server.ru
 { "bill":
   {  
      "siteId":"23044",
-     "billId":"1519892138404fhr7i272a2",
+     "billId":"cc961e8d-d4d6-4f02-b737-2297e51fb48e",
      "amount":{  
         "value":"100",
         "currency":"RUB"
@@ -793,6 +811,9 @@ Host: server.ru
     </li>
 </ul>
 
+<aside class="notice">
+Заголовки по стандарту регистронезависимы и ваш клиент может их изменить - смотрите документацию вашего клиента.
+</aside>
 
 <aside class="notice">
 Если в ответе код состояния HTTP отличается от 200 (OK), это интерпретируется как временная ошибка в вашей системе. Сервер QIWI будет повторять запрос с нарастающим интервалом в течение суток.
@@ -844,10 +865,10 @@ const notificationData = {
     version: '1'
 };
 
-const merchantSecret = 'test-merchant-secret-for-signature-check';
+const secretKey = 'eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjUyNjgxMiwiYXBpX3VzZXJfaWQiOjcxNjI2MTk3LCJzZWNyZXQiOiJmZjBiZmJiM2UxYzc0MjY3YjIyZDIzOGYzMDBkNDhlYjhiNTnONPININONPN090MTg5Z**********************';
 
 qiwiApi.checkNotificationSignature(
-    validSignatureFromNotificationServer, notificationData, merchantSecret
+    validSignatureFromNotificationServer, notificationData, secretKey
 ); // true
 ~~~
 
@@ -864,18 +885,18 @@ $notificationData = [
   ],
   'version' => '3'
 ];
-$merchantSecret = 'test-merchant-secret-for-signature-check';
+$secretKey = 'eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjUyNjgxMiwiYXBpX3VzZXJfaWQiOjcxNjI2MTk3LCJzZWNyZXQiOiJmZjBiZmJiM2UxYzc0MjY3YjIyZDIzOGYzMDBkNDhlYjhiNTnONPININONPN090MTg5Z**********************';
 
 /** @var \Qiwi\Api\BillPayments $billPayments */
 $billPayments->checkNotificationSignature(
-  $validSignatureFromNotificationServer, $notificationData, $merchantSecret
+  $validSignatureFromNotificationServer, $notificationData, $secretKey
 ); // true
 
 ?>
 ~~~
 
 ~~~java
-String merchantSecret = "test-merchant-secret-for-signature-check";
+String secretKey = "eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjUyNjgxMiwiYXBpX3VzZXJfaWQiOjcxNjI2MTk3LCJzZWNyZXQiOiJmZjBiZmJiM2UxYzc0MjY3YjIyZDIzOGYzMDBkNDhlYjhiNTnONPININONPN090MTg5Z**********************";
 Notification notification = new Notification(
         new Bill(
                 "test",
@@ -889,7 +910,7 @@ Notification notification = new Notification(
         "3"
 );
 String validSignature = "07e0ebb10916d97760c196034105d010607a6c6b7d72bfa1c3451448ac484a3b";
- BillPaymentsUtils.checkNotificationSignature(validSignature, notification, merchantSecret); //true
+ BillPaymentsUtils.checkNotificationSignature(validSignature, notification, secretKey); //true
 ~~~
 
 Строка и ключ подписи кодируются в UTF-8.
@@ -910,7 +931,7 @@ amount.currency | Идентификатор валюты суммы счета 
 status | Данные о статусе счета | Object
 status.value |Строковое значение статуса | String
 status.changedDateTime|Дата обновления статуса. Формат даты<br>`ГГГГ-ММ-ДДTЧЧ:ММ:ССZ`| String
-customer | Данные о пользователет| Object
+customer | Данные о пользователе| Object
 customer.phone |Номер телефона (если был указан при выставлении счета) |String
 customer.email|E-mail пользователя (если был указан при выставлении счета)|String
 customer.account| Идентификатор пользователя в вашей системе (если был указан при выставлении счета)|String
@@ -944,6 +965,28 @@ Content-Type: application/json
 
 
 
+# Настройки формы и счета {#option}
+
+
+<aside class="notice">
+При открытии формы в webview на android обязательно включать <code>settings.setDomStorageEnabled(true)</code>
+</aside>
+
+При [выставлении счета](#create) через API в ответе приходит `payUrl` с ссылкой на форму. К ссылке можно добавить следующие параметры:
+
+> Пример ссылки
+
+~~~shell
+curl https://oplata.qiwi.com/form?invoiceUid=606a5f75-4f8e-4ce2-b400-967179502275&allowedPaySources=card
+~~~
+
+|Параметр | Описание | Тип|
+|--------|----------------|---------|
+| paySource | При открытии формы сразу будет выбран указанный способ перевода. Возможные значения:<br>`qw` - QIWI Кошелек<br>`card` - банковская карта<br>`mobile` - платеж со счета мобильного телефона<br> Если способ перевода недоступен - выбирается рекомендуемый для  данного пользователя способ | String |
+| allowedPaySources | При открытии формы будут отображаться только указанные способы перевода. (Если они доступны) Возможные значения:<br>`qw` - QIWI Кошелек<br>`card` - банковская карта<br>`mobile` - платеж со счета мобильного телефона<br> | Строка с разделителями-запятыми |
+| successUrl | URL для переадресации в случае успешного перевода с баланса QIWI Кошелька. При ином способе перевода переадресация не выполняется. Ссылка должна вести на ваш сайт. | URL-закодированная строка |
+| lifetime | Дата, до которой счет будет доступен для перевода. Если перевод не будет осуществлен до этой даты, ему присваивается финальный статус EXPIRED и последующая оплата станет невозможна.| Строка формата<br>`ГГГГ-ММ-ДДTччмм` |
+
 # Персонализация {#custom}
 
 Персонализация  позволяет адаптировать платежную форму под ваш стиль. Настраивается наименование, фон и цвет кнопок.
@@ -955,13 +998,13 @@ Content-Type: application/json
  >Пример передачи параметра при вызове платежной формы
 
 ~~~shell
-curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&billId=893794793973&successUrl=http%3A%2F%2Ftest.ru%3F&customFields%5BthemeCode%5D=кодСтиля
+curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&billId=cc961e8d-d4d6-4f02-b737-2297e51fb48e&successUrl=http%3A%2F%2Ftest.ru%3F&customFields%5BthemeCode%5D=кодСтиля
 ~~~
 
  >Пример передачи параметра в запросе к API
 
 ~~~shell
-curl https://api.qiwi.com/partner/bill/v1/bills/893794793973 \
+curl https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e \
 -X PUT \
 -H 'Accept: application/json' \
 -H 'Content-Type: application/json' \
@@ -978,6 +1021,71 @@ curl https://api.qiwi.com/partner/bill/v1/bills/893794793973 \
  }'
 ~~~
 
+~~~javascript
+const billId = 'cc961e8d-d4d6-4f02-b737-2297e51fb48e';
+
+const fields = {
+    amount: 1.00,
+    currency: 'RUB',
+    comment: 'Hello world',
+    customFields: {themeCode: 'кодСтиля'},
+    expirationDateTime: '2018-03-02T08:44:07+03:00'
+};
+
+qiwiApi.createBill( billId, fields ).then( data => {
+    //do with data
+});
+~~~
+
+~~~php
+<?php
+
+$billId = 'cc961e8d-d4d6-4f02-b737-2297e51fb48e';
+$customFields = ['themeCode' => 'кодСтиля'];
+$fields = [
+  'amount' => 1.00,
+  'currency' => 'RUB',
+  'comment' => 'test',
+  'expirationDateTime' => '2018-03-02T08:44:07+03:00',
+  'email' => 'example@mail.org',
+  'account' => 'client4563',
+  'customFields' => $customFields
+];
+
+/** @var \Qiwi\Api\BillPayments $billPayments */
+$response = $billPayments->createBill($billId, $fields);
+
+print_r($response);
+
+?>
+~~~
+
+~~~csharp
+client.CreateBill(
+    info: new CreateBillInfo
+    {
+        BillId = Guid.NewGuid().ToString(),
+        Amount = new MoneyAmount
+        {
+            ValueDecimal = 199.9m,
+            CurrencyEnum = CurrencyEnum.Rub
+        },
+        Comment = "comment",
+        ExpirationDateTime = DateTime.Now.AddDays(45),
+        Customer = new Customer
+        {
+            Email = "example@mail.org",
+            Account = Guid.NewGuid().ToString(),
+            Phone = "79123456789"
+        },
+        SuccessUrl = new Uri("http://merchant.ru/success")
+    },
+    customFields: new CustomFields
+    {
+        ThemeCode = "кодСтиля"
+    }
+);
+~~~
 
 ![Customer form](/images/Custom.png)
 
@@ -1055,41 +1163,3 @@ QiwiCheckout.openInvoice(params)
 |---------|----------|----------|---------|
 | payUrl | URL инвойса | String | + |
 
-# Настройки формы и счета {#option}
-
-
-<aside class="notice">
-При открытии формы в webview на android обязательно включать <code>settings.setDomStorageEnabled(true)</code>
-</aside>
-
-При [выставлении счета](#create) через API в ответе приходит `payUrl` с ссылкой на форму. К ссылке можно добавить следующие параметры:
-
-> Пример ссылки
-
-~~~shell
-curl https://oplata.qiwi.com/form?invoiceUid=606a5f75-4f8e-4ce2-b400-967179502275&allowedPaySources=card
-~~~
-
-|Параметр | Описание | Тип|
-|--------|----------------|---------|
-| paySource | При открытии формы сразу будет выбран указанный способ перевода. Возможные значения:<br>`qw` - QIWI Кошелек<br>`card` - банковская карта<br>`mobile` - платеж со счета мобильного телефона<br>`sovest` - карта СОВЕСТЬ<br> Если способ перевода недоступен - выбирается рекомендуемый для  данного пользователя способ | String |
-| allowedPaySources | При открытии формы будут отображаться только указанные способы перевода. (Если они доступны) Возможные значения:<br>`qw` - QIWI Кошелек<br>`card` - банковская карта<br>`mobile` - платеж со счета мобильного телефона<br>`sovest` - карта СОВЕСТЬ<br> | Строка с разделителями-запятыми |
-| successUrl | URL для переадресации в случае успешного перевода с баланса QIWI Кошелька. При ином способе перевода переадресация не выполняется. Ссылка должна вести на ваш сайт. | URL-закодированная строка |
-| lifetime | Дата, до которой счет будет доступен для перевода. Если перевод не будет осуществлен до этой даты, ему присваивается финальный статус EXPIRED и последующая оплата станет невозможна.| Строка формата<br>`ГГГГ-ММ-ДДTччмм` |
-
-# Готовые решения
-
-## SDK и библиотеки {#sdk}
-
-* [NODE JS SDK](https://github.com/QIWI-API/bill-payments-node-js-sdk) - Готовое решение для разработки server2server интеграции c помощью Node.js.
-* [PHP SDK](https://github.com/QIWI-API/bill-payments-php-sdk) - Готовое решение для разработки server2server интеграции c помощью PHP.
-* [Java SDK](https://github.com/QIWI-API/bill-payments-java-sdk) - Готовое решение для разработки server2server интеграции c помощью Java.
-* [.Net SDK](https://github.com/QIWI-API/bill-payments-dotnet-sdk) - Готовое решение для разработки server2server интеграции c помощью C# .Net.
-
-## Решения для CMS {#cms}
-
-* [Wordpress](https://wordpress.org/plugins/woo-qiwi-payment-gateway/) -  расширение под Woocommerce для работы с заказами
-* [Онлайн Лейка](https://wordpress.org/plugins/leyka/) -  Wordpress расширение для благотворительности
-* [1С-Битрикс](http://marketplace.1c-bitrix.ru/solutions/qiwikassa.checkout/) - решение для работы с заказами
-* [Opencart](https://www.opencart.com/index.php?route=marketplace/extension/info&member_token=nH5fDsH3A5OkPF4zOe82hS0ypOhIqSEr&extension_id=36833) - решение для работы с заказами
-* [PrestaShop](https://github.com/QIWI-API/prestashop-payment-qiwi/releases) - решение для работы с заказами
