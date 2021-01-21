@@ -7,6 +7,8 @@ metatitle: API P2P Invoices  1.0.0
 
 metadescription: API P2P Invoices opens a way to operate with invoices from your service or application. Invoice is the unique request for the payment. By default, the user may pay the invoice with any accessible means. API supports issuing and cancelling invoices, making refunds and checking operation status.
 
+category: p2p
+
 language_tabs:
   - shell
   - php: PHP SDK
@@ -94,7 +96,7 @@ end
 * When the invoice payment is confirmed, merchant delivers ordered services/goods.
 
 
-# SDK and CMS
+# SDK and CMS {#section}
 
 ## SDK and Libraries {#sdk}
 
@@ -243,7 +245,7 @@ const link = qiwiApi.createPaymentForm(params);
 ~~~
 
 ~~~shell
-curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&billId=cc961e8d-d4d6-4f02-b737-2297e51fb48e&successUrl=http%3A%2F%2Ftest.ru%3F&email=m@ya.ru
+curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&successUrl=http%3A%2F%2Ftest.ru%3F&email=m@ya.ru&customFields[paySourcesFilter]=qw,card&lifetime=2020-12-01T0509
 ~~~
 
 <aside class="notice">
@@ -257,15 +259,17 @@ When opening Payment Form in Webview on Android, you should enable <code>setting
 Parameter|Description|Type|Required
 ---------|--------|---|--------
 publicKey | Merchant public key received in p2p.qiwi|String|+
-billId|Unique invoice identifier in merchant's system|URL-encoded, String(200)|-
+billId|Unique invoice identifier in merchant's system|URL-Encoded String(200)|-
 amount| Amount of the invoice rounded down on two decimals | Number(6.2)|-
-phone | Phone number of the client to which the invoice is issuing (international format) | URL-encoded string|-
-email | E-mail of the client where the invoice payment link will be sent | URL-encoded string|-
-account | Client identifier in merchant's system | URL-encoded string |-
-comment | Invoice commentary|URL-encoded, String(255)|-
-customFields[]|Additional invoice data|URL-encoded, String(255)|-
-lifetime | Expiration date of the pay form link (invoice payment's due date). If the invoice is not paid after that date, the invoice assigns `EXPIRED` final status and it becomes void.<br> **Important! Invoice will be automatically expired when 45 days is passed after the invoicing date**|URL-encoded string<br>`YYYY-MM-DDThhmm`|-
-successUrl|The URL to which the client will be redirected in case of successful payment from its QIWI Wallet balance. When payment is by any other means, redirection is not performed. URL must be within merchant's site.|URL-encoded string|-
+phone | Phone number of the client to which the invoice is issuing (international format) | URL-Encoded String|-
+email | E-mail of the client where the invoice payment link will be sent | URL-Encoded String|-
+account | Client identifier in merchant's system | URL-Encoded String |-
+comment | Invoice commentary|URL-Encoded String(255)|-
+customFields[]|Additional invoice data|URL-encoded String(255)|-
+customFields[paySourcesFilter]|Allow only these payment methods for the client on Payment Form. Possible values: <br>`qw` - QIWI Wallet <br>`card` - card payment |URL-Encoded String(255)|-
+customFields[themeCode]|[Personalization](#custom) for Payments Form |String(255)|-
+lifetime | Expiration date of the pay form link (invoice payment's due date). If the invoice is not paid after that date, the invoice assigns `EXPIRED` final status and it becomes void.<br> **Important! Invoice will be automatically expired when 45 days is passed after the invoicing date**|URL-Encoded String<br>`YYYY-MM-DDThhmm`|-
+successUrl|The URL to which the client will be redirected in case of successful payment. URL must be within merchant's site.|URL-Encoded String|-
 
 
 # API Operations {#API}
@@ -298,21 +302,29 @@ qiwiApi.createBill( billId, fields ).then( data => {
 ~~~
 
 ~~~shell
-curl https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e \
--X PUT \
--H 'Accept: application/json' \
--H 'Content-Type: application/json' \
--H 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************'
--d '{ \
-   "amount": { \
-     "currency": "RUB", \
-     "value": 100.00 \
-   }, \
-   "comment": "Text comment", \
-   "expirationDateTime": "2018-04-13T14:30:00+03:00", \
-   "customer": {}, \
-   "customFields": {} \
-   }'
+curl --location --request PUT 'https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e' \
+--header 'content-type: application/json' \
+--header 'accept: application/json' \
+--header 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************' \
+--data-raw '{  
+   "amount": {   
+     "currency": "RUB",   
+     "value": "1.00" 
+   },  
+   "comment": "Text comment",  
+   "expirationDateTime": "2025-12-10T09:02:00+03:00",  
+   "customer": {
+     "phone": "78710009999",
+     "email": "test@tester.com",
+     "account": "454678"
+   }, 
+   "customFields" : {
+     "paySourcesFilter":"qw",
+     "themeCode": "Yvan-YKaSh",
+     "yourParam1": "64728940",
+     "yourParam2": "order 678"
+   }
+ }'
 ~~~
 
 ~~~php
@@ -400,15 +412,17 @@ Parameter|Description|Type|Required
 ---------|--------|---|--------
 billId|Unique invoice identifier in merchant's system|String(200)|+
 amount|Object|Data of the invoice amount|+
-amount.currency| Invoice amount currency code. Only `RUB` | Alpha-3 ISO 4217 code |+
+amount.currency| Invoice amount currency code. `RUB` `KZT` | Alpha-3 ISO 4217 code |+
 amount.value| Amount of the invoice rounded down to two decimals | Number(6.2)|+
-expirationDateTime |  Invoice due date. Time should be specified with time zone. |string<br>`YYYY-MM-DDThhmm+\-hh:mm`|+
-customer|Object | Customer data of the invoice subject|-
-customer.phone | Phone number of the client to which the invoice is issuing (international format) |string|-
-customer.email | E-mail of the client where the invoice payment link will be sent |string|-
-customer.account | Client identifier in merchant's system |string |-
+expirationDateTime |  Invoice due date. Time should be specified with time zone. |`YYYY-MM-DDThhmm+\-hh:mm`|+
+customer | Customer data of the invoice subject|Object|-
+customer.phone | Phone number of the client to which the invoice is issuing (international format) |String|-
+customer.email | E-mail of the client where the invoice payment link will be sent |String|-
+customer.account | Client identifier in merchant's system |String |-
 comment | Invoice commentary|String(255)|-
-customFields[]|Additional invoice data|String(255)|-
+customFields|Additional invoice data|Object|-
+customFields.paySourcesFilter | Allow only these payment methods for the client on Payment Form. Possible values: <br>`qw` - QIWI Wallet <br>`card` - card payment |Comma separated string|-
+customFields.themeCode | [Personalization](#custom) for Payments Form |String(255)|-
 
 
 <h3 class="request">Response ←</h3>
@@ -416,34 +430,45 @@ customFields[]|Additional invoice data|String(255)|-
 >Successful response body example
 
 ~~~json
-  {
-    "siteId": "23044",
+{
+    "siteId": "9hh4jb-00",
     "billId": "cc961e8d-d4d6-4f02-b737-2297e51fb48e",
     "amount": {
-      "value": 100,
-      "currency": "RUB"
+        "currency": "RUB",
+        "value": "1.00"
     },
     "status": {
-      "value": "WAITING",
-      "changedDateTime": "2018-03-05T11:27:41+03:00"
+        "value": "WAITING",
+        "changedDateTime": "2021-01-18T14:22:56.672+03:00"
+    },
+    "customer": {
+        "phone": "78710009999",
+        "email": "test@tester.com",
+        "account": "454678"
+    },
+    "customFields": {
+        "paySourcesFilter": "qw",
+        "themeCode": "Yvan-YKaSh",
+        "yourParam1": "64728940",
+        "yourParam2": "order 678"
     },
     "comment": "Text comment",
-    "creationDateTime": "2018-03-05T11:27:41",
-    "expirationDateTime": "2018-04-13T14:30:00",
-    "payUrl": "https://oplata.qiwi.com/form/?invoice_uid=d875277b-6f0f-445d-8a83-f62c7c07be77"
-  }
+    "creationDateTime": "2021-01-18T14:22:56.672+03:00",
+    "expirationDateTime": "2025-12-10T09:02:00+03:00",
+    "payUrl": "https://oplata.qiwi.com/form/?invoice_uid=aa0fa2bb-5452-47ca-9190-cd9c1a73718f"
+}
 ~~~
 
 >Error response body
 
 ~~~json
 {
-	"serviceName": "invoicing-api",
-	"errorCode": "auth.unauthorized",
-	"description": "Неверные аутентификационные данные",
-	"userMessage": "",
-	"datetime": "2018-04-09T18:31:42+03:00",
-	"traceId" : "48485a395dfsdf34v124"
+    "serviceName": "invoicing-api",
+    "errorCode": "http.message.conversion.failed",
+    "description": "Bad request",
+    "userMessage": "Bad request",
+    "dateTime": "2021-01-18T14:29:51.984+03:00",
+    "traceId": "8fa9cfe10c7f83d1"
 }
 
 ~~~
@@ -492,10 +517,9 @@ qiwiApi.getBillInfo(billId).then( data => {
 ~~~
 
 ~~~shell
-curl https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e \
--X GET \
--H 'Accept: application/json' \
--H 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************'
+curl --location --request GET 'https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e' \
+--header 'accept: application/json' \
+--header 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************'
 ~~~
 
 ~~~php
@@ -545,43 +569,45 @@ var response = client.getBillInfo(billId);
 >Successful response body example
 
 ~~~json
- {
-    "siteId": "23044",
+{
+    "siteId": "9hh4jb-00",
     "billId": "cc961e8d-d4d6-4f02-b737-2297e51fb48e",
     "amount": {
-      "value": 2.42,
-      "currency": "RUB"
+        "currency": "RUB",
+        "value": "1.00"
     },
     "status": {
-      "value": "WAITING",
-      "changedDateTime": "2018-02-28T11:43:23.386+03:00"
+        "value": "WAITING",
+        "changedDateTime": "2021-01-18T14:22:56.672+03:00"
     },
     "customer": {
-      "email": "test@qiwi.com",
-      "phone": "79191234567",
-      "account": "user_account"
+        "email": "test@tester.com",
+        "phone": "78710009999",
+        "account": "454678"
     },
     "customFields": {
-      "city": "Moscow"
+        "paySourcesFilter": "qw",
+        "themeCode": "Yvan-YKaSh",
+        "yourParam1": "64728940",
+        "yourParam2": "order 678"
     },
     "comment": "Text comment",
-    "creationDateTime": "2018-02-28T11:43:23.612+03:00",
-    "expirationDateTime": "2018-04-14T11:43:23+03:00",
-    "payUrl": "https://oplata.qiwi.com/form/?invoice_uid=6848dd49-e260-4343-b258-62199cffe8c1"
-  }
-
+    "creationDateTime": "2021-01-18T14:22:56.672+03:00",
+    "expirationDateTime": "2025-12-10T09:02:00+03:00",
+    "payUrl": "https://oplata.qiwi.com/form/?invoice_uid=aa0fa2bb-5452-47ca-9190-cd9c1a73718f"
+}
 ~~~
 
 >Error response body example
 
 ~~~json
 {
-	"serviceName": "invoicing",
-	"errorCode": "auth.unauthorized",
-	"description": "Неверные аутентификационные данные",
-	"userMessage": "",
-	"datetime": "2018-04-09T18:31:42+03:00",
-	"traceId" : ""
+    "serviceName": "invoicing-api",
+    "errorCode": "api.invoice.not.found",
+    "description": "Invoice not found",
+    "userMessage": "Invoice not found",
+    "dateTime": "2021-01-18T14:34:40.865+03:00",
+    "traceId": "b3d41cafa0c6d088"
 }
 ~~~
 
@@ -628,11 +654,11 @@ qiwiApi.cancelBill(billId).then( data => {
 ~~~
 
 ~~~shell
-curl https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e/reject \
--X POST \
--H 'Accept: application/json' \
--H 'Content-Type: application/json' \
--H 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************'
+curl --location --request POST 'https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e/reject' \
+--header 'content-type: application/json' \
+--header 'accept: application/json' \
+--header 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************' \
+--data-raw ''
 ~~~
 
 ~~~php
@@ -672,6 +698,7 @@ var response = client.cancelBill(billId);
     <li><h3>HEADERS</h3>
         <ul>
              <li>Authorization: Bearer <a href="#auth">SECRET_KEY</a></li>
+             <li>Content-Type: application/json</li>
              <li>Accept: application/json</li>
         </ul>
     </li>
@@ -683,28 +710,31 @@ var response = client.cancelBill(billId);
 
 ~~~json
 {
-    "siteId": "23044",
+    "siteId": "9hh4jb-00",
     "billId": "cc961e8d-d4d6-4f02-b737-2297e51fb48e",
     "amount": {
-      "value": 2.42,
-      "currency": "RUB"
+        "currency": "RUB",
+        "value": "1.00"
     },
     "status": {
-      "value": "REJECTED",
-      "datetime": "2018-02-28T11:43:23"
+        "value": "REJECTED",
+        "changedDateTime": "2021-01-18T14:36:17.65+03:00"
     },
     "customer": {
-      "email": "test@qiwi.com",
-      "phone": "79191234567",
-      "account": "user_account"
+        "email": "test@tester.com",
+        "phone": "78710009999",
+        "account": "454678"
     },
     "customFields": {
-      "city": "Moscow"
+        "paySourcesFilter": "qw",
+        "themeCode": "Yvan-YKaSh",
+        "yourParam1": "64728940",
+        "yourParam2": "order 678"
     },
     "comment": "Text comment",
-    "creationDateTime": "2018-02-28T11:43:23",
-    "expirationDateTime": "2018-04-14T11:43:23",
-    "payUrl": "https://oplata.qiwi.com/form/?invoice_uid=6848dd49-e260-4343-b258-62199cffe8c1"
+    "creationDateTime": "2021-01-18T14:22:56.672+03:00",
+    "expirationDateTime": "2025-12-10T09:02:00+03:00",
+    "payUrl": "https://oplata.qiwi.com/form/?invoice_uid=aa0fa2bb-5452-47ca-9190-cd9c1a73718f"
 }
 ~~~
 
@@ -712,12 +742,12 @@ var response = client.cancelBill(billId);
 
 ~~~json
 {
-	"serviceName": "invoicing",
-	"errorCode": "auth.unauthorized",
-	"description": "Неверные аутентификационные данные",
-	"userMessage": "",
-	"datetime": "2018-04-09T18:31:42+03:00",
-	"traceId" : ""
+    "serviceName": "invoicing-api",
+    "errorCode": "api.invoice.not.found",
+    "description": "Invoice not found",
+    "userMessage": "Invoice not found",
+    "dateTime": "2021-01-18T14:39:54.265+03:00",
+    "traceId": "bc6bb6e7c5cf5beb"
 }
 ~~~
 
@@ -766,6 +796,19 @@ EXPIRED	|Invoice expired. Invoice not paid|+
 Notifications handler service on your side is not required for the integration. You can implement <a href="#invoice-status">invoice status polling</a> instead.
 </aside>
 
+The server address for notifications is specified in your personal account <a href = "https://p2p.qiwi.com/">p2p.qiwi.com</a> when [generating keys](#auth).
+
+Please read the [Notification API Integration Terms](https://qiwi.com/support/products/p2p/usloviya_integratsii_api_uvedomleniy) before working with the notification service
+
+Pools of IP-addresses from which QIWI service sends notifications:
+
+* 79.142.16.0/20
+* 195.189.100.0/22
+* 91.232.230.0/23
+* 91.213.51.0/24
+
+If your web service works behinds the firewall, you need to add these IP-addresses to the list of allowed addresses for incoming TCP packets.
+
 <aside class="warning">
 Callback is sent by HTTPS protocol on 443 port only.
 Certificate should be issued by any trusted center of certification (e.g. Comodo, Verisign, Thawte etc)
@@ -782,30 +825,38 @@ Content-type: application/json
 X-Api-Signature-SHA256: J4WNfNZd***V5mv2w=
 Host: server.ru
 
-{ "bill":
-  {
-     "siteId":"23044",
-     "billId":"1519892138404fhr7i272a2",
-     "amount":{
-        "value":"100",
-        "currency":"RUB"
-     },
-     "status":{
-        "value":"PAID",
-        "datetime":"2018-03-01T11:16:12"
-     },
-     "customer":{},
-     "customFields":{},
-     "creationDateTime":"2018-03-01T11:15:39",
-     "expirationDateTime":"2018-04-01T11:15:39"
-   },
-  "version":"1"
+{
+  "bill": {
+    "siteId": "9hh4jb-00",
+    "billId": "cc961e8d-d4d6-4f02-b737-2297e51fb48e",
+    "amount": {
+      "value": "1.00",
+      "currency": "RUB"
+    },
+    "status": {
+      "value": "PAID",
+      "changedDateTime": "2021-01-18T15:25:18+03"
+    },
+    "customer": {
+      "phone": "78710009999",
+      "email": "test@tester.com",
+      "account": "454678"
+    },
+    "customFields": {
+      "paySourcesFilter": "qw",
+      "themeCode": "Yvan-YKaSh",
+      "yourParam1": "64728940",
+      "yourParam2": "order 678"
+    },
+    "comment": "Text comment",
+    "creationDateTime": "2021-01-18T15:24:53+03",
+    "expirationDateTime": "2025-12-10T09:02:00+03"
+  },
+  "version": "1"
 }
 ~~~
 
 Notification is an incoming POST-request (callback). The request's body contains JSON-serialized invoice data encoded by UTF-8.
-
-Notifications handler server URL is specified on <a href="https://p2p.qiwi.com/">p2p.qiwi.com</a> in **API** section.
 
 <ul class="nestedList header">
     <li><h3>HEADERS</h3>
@@ -973,23 +1024,21 @@ When opening Payment Form in Webview on Android, you should enable <code>setting
 > Invoice URL example
 
 ~~~shell
-curl https://oplata.qiwi.com/form?invoiceUid=606a5f75-4f8e-4ce2-b400-967179502275&allowedPaySources=card
+curl https://oplata.qiwi.com/form?invoiceUid=a8437e7e-dc48-44f7-9bdb-4d46ca8ef2e4&paySource=qw&successUrl=google.com
 ~~~
 
 You can add parameters to URL from `payUrl` field in response to the [invoice request](#create).
 
 | Parameter | Description | Type |
 |--------------|------------|-------------|
-| paySource |Pre-selected payment method for the client on Payment Form. Possible values: <br>`qw` - QIWI Wallet<br>`card` - card payment <br>`mobile` - mobile account payment <br> When specified method is inaccessible, the page automatically selects recommended method for the user.| String |
-| allowedPaySources |Allow only these payment methods for the client on Payment Form. Possible values: <br>`qw` - QIWI Wallet<br>`card` - card payment <br>`mobile` - mobile account payment <br>| comma separated string |
-| successUrl | The URL to which the client will be redirected in case of successful payment from its QIWI Wallet balance. When payment is by any other means, redirection is not performed. URL must belong to the merchant. | URL-encoded string |
-| lifetime | Expiration date of the pay form link (invoice payment’s due date). If the invoice is not paid after that date, the invoice assigns EXPIRED final status and it becomes void. Important! Invoice will be automatically expired when 45 days is passed after the invoicing date| String<br>`YYYY-MM-DDThhmm` |
+| paySource |Pre-selected payment method for the client on Payment Form. Possible values: <br>`qw` - QIWI Wallet<br>`card` - card payment<br>`mobile` - payment from phone balance<br> When specified method is inaccessible, the page automatically selects recommended method for the user.| String |
+| successUrl | The URL to which the client will be redirected in case of successful payment. URL must be within merchant's site. | URL-Encoded String |
 
 # Personalization {#custom}
 
 Personalization allows you to create a payment form with your style, customizable logo, background and color of the buttons.  
 
-You can create styles in your account on [p2p.qiwi.com](https://p2p.qiwi.com). It is possible to create several styles.
+You can create styles in your account on [p2p.qiwi.com](https://p2p.qiwi.com).
 
 When setting up, you create a code linked to the style (for example, `codeStyle`). To use style on the Payment Form, you must pass the variable: `"themeCode": "codeStyle"` with respective code of the style in the `customFields` parameter of the [invoice request](#create) or  [opening Payment Form URL](#http).
 
@@ -1002,20 +1051,19 @@ curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfm
  >Invoice Issue by API
 
 ~~~shell
-curl https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e \
--X PUT \
--H 'Accept: application/json' \
--H 'Content-Type: application/json' \
--H 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************' \
--d '{ \
-   "amount": {  \
-     "currency": "RUB",  \
-     "value": 100.00 \
-   }, \
-   "comment": "Text comment", \
-   "expirationDateTime": "2018-04-13T14:30:00+03:00", \
-   "customer": {}, \
-   "customFields": {"themeCode":"codeStyle"} \
+curl --location --request PUT 'https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e' \
+--header 'content-type: application/json' \
+--header 'accept: application/json' \
+--header 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************' \
+--data-raw '{
+   "amount": {
+     "currency": "RUB",
+     "value": 100.00
+   },
+   "comment": "Text comment",
+   "expirationDateTime": "2025-04-13T14:30:00+03:00",
+   "customer": {},
+   "customFields": {"themeCode":"кодСтиля"}
  }'
 ~~~
 
