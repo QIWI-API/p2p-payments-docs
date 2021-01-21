@@ -28,7 +28,7 @@ toc_footers:
 
 # API Basics {#intro}
 
-###### Last update: 2020-06-04 | [Edit on GitHub](https://github.com/QIWI-API/p2p-payments-docs/blob/master/p2p-payments_en.html.md)
+###### Last update: 2021-01-21 | [Edit on GitHub](https://github.com/QIWI-API/p2p-payments-docs/blob/master/p2p-payments_en.html.md)
 
 P2P Invoices API opens a way to operations with invoices from your service or application. Invoice is the unique request for the payment. The user may pay the invoice with any accessible means. API supports  issuing and cancelling invoices, making refunds and checking operation status.
 
