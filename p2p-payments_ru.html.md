@@ -36,6 +36,10 @@ API P2P-счетов открывает доступ к операциям с в
 
 **Для работы API потребуются публичный и секретный ключи. Ключи создаются в личном кабинете в разделе "API" (доступен после авторизации на сайте [p2p.qiwi.com](https://p2p.qiwi.com)).**
 
+## Важное обновление {#warning}
+
+Платежи, проходящие со страницы без заголовка запроса [Refer](https://developer.mozilla.org/ru/docs/Web/HTTP/Headers/Referer) будут приводить к блокировке аккаунта. Подробнее можно прочитать в статье [«Как передавать реферальные ссылки»](https://qiwi.com/support/products/p2p/referalnie_ssylki).
+
 ## Схема работы {#steps}
 
 <!--![Operation Flow](/images/bill_payments.png)-->
