@@ -116,7 +116,7 @@ end
 # Authorization {#auth}
 
 ~~~javascript
-const QiwiBillPaymentsAPI = require('bill-payments-node-js-sdk');
+const QiwiBillPaymentsAPI = require('@qiwi/bill-payments-node-js-sdk');
 
 const SECRET_KEY = 'eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjUyNjgxMiwiYXBpX3VzZXJfaWQiOjcxNjI2MTk3LCJzZWNyZXQiOiJmZjBiZmJiM2UxYzc0MjY3YjIyZDIzOGYzMDBkNDhlYjhiNTnONPININONPN090MTg5Z**********************';
 
