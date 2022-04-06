@@ -28,7 +28,7 @@ toc_footers:
 
 # API Basics {#intro}
 
-###### Last update: 2021-01-21 | [Edit on GitHub](https://github.com/QIWI-API/p2p-payments-docs/blob/master/p2p-payments_en.html.md)
+###### Last update: 2021-01-21 | [Propose corrections on GitHub](https://github.com/QIWI-API/p2p-payments-docs/)
 
 P2P Invoices API opens a way to operations with invoices from your service or application. Invoice is the unique request for the payment. The user may pay the invoice with any accessible means. API supports  issuing and cancelling invoices, making refunds and checking operation status.
 
@@ -95,15 +95,14 @@ end
 
 * When the invoice payment is confirmed, merchant delivers ordered services/goods.
 
-
 # SDK and CMS {#section}
 
 ## SDK and Libraries {#sdk}
 
-* [NODE JS SDK](https://github.com/QIWI-API/bill-payments-node-js-sdk) - Node JS package of ready-to-use solutions for server2server integration development.
-* [PHP SDK](https://github.com/QIWI-API/bill-payments-php-sdk) -  PHP package of ready-to-use solutions for server2server integration development.
-* [Java SDK](https://github.com/QIWI-API/bill-payments-java-sdk) - Java package of ready-to-use solutions for server2server integration development.
-* [.Net SDK ](https://github.com/QIWI-API/bill-payments-dotnet-sdk) - C# .net package of ready-to-use solutions for server2server integration development.
+* [NODE JS SDK](https://github.com/QIWI-API/bill-payments-node-js-sdk) — Node JS package of ready-to-use solutions for server2server integration development.
+* [PHP SDK](https://github.com/QIWI-API/bill-payments-php-sdk) — PHP package of ready-to-use solutions for server2server integration development.
+* [Java SDK](https://github.com/QIWI-API/bill-payments-java-sdk) — Java package of ready-to-use solutions for server2server integration development.
+* [.Net SDK ](https://github.com/QIWI-API/bill-payments-dotnet-sdk) — C# .NET package of ready-to-use solutions for server2server integration development.
 
 ## CMS Solutions {#cms}
 
@@ -116,7 +115,7 @@ end
 # Authorization {#auth}
 
 ~~~javascript
-const QiwiBillPaymentsAPI = require('bill-payments-node-js-sdk');
+const QiwiBillPaymentsAPI = require('@qiwi/bill-payments-node-js-sdk');
 
 const SECRET_KEY = 'eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjUyNjgxMiwiYXBpX3VzZXJfaWQiOjcxNjI2MTk3LCJzZWNyZXQiOiJmZjBiZmJiM2UxYzc0MjY3YjIyZDIzOGYzMDBkNDhlYjhiNTnONPININONPN090MTg5Z**********************';
 
@@ -159,7 +158,6 @@ Public key (`PUBLIC_KEY`) is used when issuing invoices via [the Payment Form](#
 Do not share secret key to third parties!
 </aside>
 
-
 # Invoice Issue on Payment Form {#http}
 
 <aside class="notice">
@@ -169,15 +167,21 @@ When opening Payment Form in Webview on Android, you should enable <code>setting
 It is the simplest way of integration. On opening Payment Form, client receives an invoice at the same time. The invoice data sends in URL explicitly. Client gets a Payment Form web page with multiple payment means. When using  this method, one cannot be sure that all invoices are issued by the merchant. [API invoice creation](#create) mitigates this risk.
 
 ~~~javascript
-const QiwiBillPaymentsAPI = require('bill-payments-node-js-sdk');
+const publicKey = 'Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******';
 
-const SECRET_KEY = 'eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjUyNjgxMiwiYXBpX3VzZXJfaWQiOjcxNjI2MTk3LCJzZWNyZXQiOiJmZjBiZmJiM2UxYzc0MjY3YjIyZDIzOGYzMDBkNDhlYjhiNTnONPININONPN090MTg5Z**********************';
+const params = {
+    publicKey,
+    amount: 42.24,
+    billId: 'cc961e8d-d4d6-4f02-b737-2297e51fb48e',
+    successUrl: 'http://test.ru/',
+    email: 'm@ya.ru'
+};
 
-const qiwiApi = new QiwiBillPaymentsAPI(SECRET_KEY);
+const link = qiwiApi.createPaymentForm(params);
 ~~~
 
 ~~~shell
---header "Authorization: Bearer MjMyNDQxMjM6NDUzRmRnZDQ0M*******"
+curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&successUrl=http%3A%2F%2Ftest.ru%3F&email=m@ya.ru&customFields[paySourcesFilter]=qw,card&lifetime=2020-12-01T0509
 ~~~
 
 ~~~php
@@ -222,7 +226,6 @@ var successUrl = "https://merchant.com/payment/success?billId=cc961e8d-d4d6-4f02
 
 var paymentUrl = client.createPaymentForm(new PaymentInfo(key, amount, billId, successUrl));
 ~~~
-
 
 <h3 class="request method">REDIRECT → </h3>
 
@@ -276,7 +279,7 @@ successUrl|The URL to which the client will be redirected in case of successful 
 
 ## 1. Invoice Issue by API {#create}
 
-It is the reliable method for integration. Parameters are sent by means of server2server requests with authorization. Method allows you to issue an invoice, successful response contains `payUrl` link to redirect client on Payment Form.
+It is the reliable method for integration. Parameters are sent by means of server2server requests with authorization. Method allows you to issue an invoice, successful response contains `payUrl` URL to redirect client on Payment Form.
 
 **[Additional features](#option)**
 
@@ -498,7 +501,7 @@ customer.account| String|The customer's identifier in the merchant's system (if 
 customFields|Object|Additional invoice data provided by the merchant
 comment|String|Comment to the invoice
 creationDateTime|String|System date of the invoice creation. Date format:<br>`YYYY-MM-DDThh:mm:ss±hh`
-payUrl|String|Pay form link
+payUrl|String|Pay form URL
 expirationDateTime|String|Expiration date of the pay form link (invoice payment's due date). Date format:<br>`YYYY-MM-DDThh:mm:ss±hh`
 
 
@@ -636,7 +639,7 @@ customer.email|String|The customer's e-mail  (if specified in the invoice)
 customer.account|String|The customer's identifier in the merchant's system (if specified in the invoice)
 comment|String|Comment to the invoice
 creationDateTime|String|System date of the invoice creation. Date format:<br>`YYYY-MM-DDThh:mm:ss`
-payUrl|String|Pay form link
+payUrl|String|Pay form URL
 expirationDateTime|String|Expiration date of the pay form link (invoice payment's due date). Date format:<br>`YYYY-MM-DDThh:mm:ss`
 
 ## 3. Cancelling the Invoice {#cancel}
@@ -776,7 +779,7 @@ customer.email|String|The customer's e-mail  (if specified in the invoice)
 customer.account|String|The customer's identifier in the merchant's system (if specified in the invoice)
 comment|String|Comment to the invoice
 creationDateTime|String|System date of the invoice creation. Date format:<br>`YYYY-MM-DDThh:mm:ss`
-payUrl|String|Pay form link
+payUrl|String|Pay form URL
 expirationDateTime|String|Expiration date of the pay form link (invoice payment's due date). Date format:<br>`YYYY-MM-DDThh:mm:ss`
 
 
@@ -984,7 +987,7 @@ customer.email|The customer's e-mail  (if specified in the invoice)|String
 customer.account|The customer's identifier in the merchant's system (if specified in the invoice)| String
 bill.comment|Comment to the invoice|String(255)
 bill.creationDateTime|System date of the invoice creation. Date format:<br>`YYYY-MM-DDThh:mm:ssZ`|String
-bill.payUrl|Pay form link|String
+bill.payUrl|Pay form URL|String
 bill.expirationDateTime|Expiration date of the pay form link (invoice payment's due date). Date format:<br>`YYYY-MM-DDThh:mm:ssZ`|String
 version | Notification service version | String
 
@@ -1027,7 +1030,7 @@ When opening Payment Form in Webview on Android, you should enable <code>setting
 curl https://oplata.qiwi.com/form?invoiceUid=a8437e7e-dc48-44f7-9bdb-4d46ca8ef2e4&paySource=qw&successUrl=google.com
 ~~~
 
-You can add parameters to URL from `payUrl` field in response to the [invoice request](#create).
+You can add parameters to URL from `payUrl` field of the response to [invoice request](#create).
 
 | Parameter | Description | Type |
 |--------------|------------|-------------|
@@ -1074,55 +1077,13 @@ curl --location --request PUT 'https://api.qiwi.com/partner/bill/v1/bills/cc961e
 <button id="pop" class="button-popup" onclick="testPopup();">Demo popup</button>
 
 
-[Download QIWI Checkout Popup ](https://github.com/QIWI-API/qiwi-invoicing-popup)
+[Download QIWI Checkout Popup](https://github.com/QIWI-API/qiwi-invoicing-popup)
 
 Installation:
 <script src='https://oplata.qiwi.com/popup/v1.js'></script>
 
 
-The library has two methods: create a new invoice and open an existing one.
-
-##  Create new invoice {#createpopup}
-
-Call function  `QiwiCheckout.createInvoice`.
-
-| Parameter | Description | Type | Required|
-|-------------|--------|-------------|-----|
-| publicKey | Merchant public key received in p2p.qiwi | String | + |
-| amount | Amount of the invoice rounded down on two decimals | Number(6.2) | + |
-| phone | Phone number of the client to which the invoice is issuing (international format) | String | - |
-| email | E-mail of the client where the invoice payment link will be sent | String | - |
-| account | Client identifier in merchant’s system | String | - |
-| comment | Invoice commentary | String(255) | - |
-| customFields | Additional invoice data | Object | - |
-| lifetime | Expiration date of the pay form link (invoice payment’s due date). If the invoice is not paid after that date, the invoice assigns `EXPIRED` final status and it becomes void.<br>**Important!** Invoice will be automatically expired when 45 days is passed after the invoicing date| URL-encoded string `YYYY-MM-DDThhmm` | - |
-
->Create new invoice
-
-~~~ppp
-params = {
-    publicKey: '5nAq6abtyCz4tcDj89e5w7Y5i524LAFmzrsN6bQTQ3c******',
-    amount: 1.23,
-
-    phone: '79123456789',
-    email: 'test@test.com',
-    account: 'acc789',
-    comment: 'Оплата',
-    customFields: {
-        data: 'data'
-    },
-    lifetime: '2019-04-04T1540'
-}
-
-QiwiCheckout.createInvoice(params)
-    .then(data => {
-        // ...
-    })
-    .catch(error => {
-        // ...
-    })
-~~~
-
+The library has two methods: open an existing invoice and open your [personal payform](https://qiwi.com/p2p-admin/transfers/link).
 
 ##  Open an existing invoice {#openpopup}
 
@@ -1130,9 +1091,9 @@ Call function  `QiwiCheckout.openInvoice`.
 
 | Parameter | Description | Type | Required |
 |--------------|------------|-------------|--------------|
-| payUrl | Pay form link| String | + |
+| payUrl | Pay form URL| String | + |
 
->Open an existing one
+>Open an existing invoice
 
 ~~~ppp
 params = {
@@ -1147,4 +1108,29 @@ QiwiCheckout.openInvoice(params)
         // ...
     })
 ~~~
+
+
+##  Open personal payform {#openpopupcustom}
+
+Call function  `QiwiCheckout.openPreorder`
+
+>Open your payform
+
+~~~ppp
+params = {
+    widgetAlias: 'https://my.qiwi.com/form/User-ABCDE1234-56'
+}
+
+QiwiCheckout.openPreorder(params)
+    .then(data => {
+        // ...
+    })
+    .catch(error => {
+        // ...
+    })
+~~~
+
+| Parameter | Description | Type | Required |
+|---------|----------|----------|---------|
+| widgetAlias | URL of your payform | String | + |
 
