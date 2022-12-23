@@ -5,7 +5,7 @@ search: true
 
 metatitle: API P2P Invoices  1.0.0
 
-metadescription: API P2P Invoices opens a way to operate with invoices from your service or application. Invoice is the unique request for the payment. By default, the user may pay the invoice with any accessible means. API supports issuing and cancelling invoices, making refunds and checking operation status.
+metadescription: API P2P Invoices opens a way for individuals to operate with invoices from their service or application. An invoice is the unique request for the money transfer. By default, the customer may pay the invoice with any accessible means. API supports issuing and cancelling invoices, and checking operation status.
 
 category: p2p
 
@@ -17,25 +17,46 @@ language_tabs:
   - csharp: .Net SDK
   - ppp: Popup
 
-services:
- - <a href='#'>Swagger</a>  |  <a href='#'>Qiwi Demo</a>
-
 toc_footers:
  - <a href='/en/'>Home page</a>
- - <a href='https://tele.click/qiwi_api_help_bot'>Feedback</a>
+ - <a href='https://t.me/qiwi_api_help_bot'>Feedback</a>
+ - <a href='https://github.com/QIWI-API/p2p-payments-docs/'>This page on Github</a>
+
 
 ---
 
-# API Basics {#intro}
+# P2P Invoices
 
-###### Last update: 2021-01-21 | [Propose corrections on GitHub](https://github.com/QIWI-API/p2p-payments-docs/)
+###### Last update: 2022-06-06
 
-P2P Invoices API opens a way to operations with invoices from your service or application. Invoice is the unique request for the payment. The user may pay the invoice with any accessible means. API supports  issuing and cancelling invoices, making refunds and checking operation status.
+## Terms of Service {#terms}
 
-**To use API,  you need public and secret keys. Keys are available after registration on [p2p.qiwi.com](https://p2p.qiwi.com).**
+To enable p2p-transfer service for individuals on your site, you need a QIWI wallet with **Basic** or **Professional** identification status. If your wallet has **Anonymous** status, pass identification with any means suitable for you:
 
-## Invoicing Operations Flow {#steps}
+* To get **Basic** status, you need to [enter your passport information](https://qiwi.com/settings/identification/form).
+* To get **Professional** status, you need to [pass identification on-site](https://qiwi.com/settings/identification/full-ru).
 
+We recommend to get **Professional** status, as it applies higher value of limits for remains on your balance, payments and transfers amount per month, and maximum amount of a single operation. See details of limits in the [documentation](https://qiwi.com/settings/identification/).
+
+Take a look at [frequently asked questions](https://qiwi.com/support/products/p2p/faq) on the service, and get an understanding on how to avoid blocking your wallet from the [documentation](https://qiwi.com/support/products/p2p/kak_izbezhat_blokirovki_koshelka).
+
+## Get access to the service {#p2p-activate}
+
+1. Authorize on [p2p.qiwi.com](https://p2p.qiwi.com).
+2. Make sure you have access to invoice creation – on the [invoicing form](https://qiwi.com/p2p-admin/transfers/invoice) fill in _Amount_ field and click **Create invoice** button. Below the link to the invoice and **Copy link** button would be displayed.
+
+![invoice-test](/images/p2p-api/invoice-create-test.png)
+
+**Congratulations! You can start service integration.**
+
+## How to start working with the service {#how-to-start}
+
+1. [Create public and secret keys](#auth).
+2. Implement [API operations](#create) or [invoicing payment form call](#http-invoice). Use [SDK](#sdk) or various [CMS solutions](#cms).
+3. To get notifications after invoice payment, implement its processing and [activate sending notifications](#notification-server).
+4. Start accepting payments from cards and QIWI wallets.
+
+## Invoicing Operations Flow {#payment-scenario}
 
 <div class="mermaid">
 sequenceDiagram
@@ -46,13 +67,16 @@ opt Basic scenario
 user->>rec:Doing order
 activate user
 activate rec
-opt Using API
+alt Using API
 rec->>p2p:Invoice issue
 p2p->>rec:Link to Payment form
+rec->>user:Redirect to Payment form<br>oplata.qiwi.com
 end
-rec->>user:Redirect to Payment form<br>Invoice issue via the form<br>oplata.qiwi.com
+alt Using Payment form
+rec->>user:Invoice issue on the form<br>oplata.qiwi.com
+end
 deactivate rec
-user->>p2p:Opening the Payment form<br>Choose payment method / Paying for invoice
+user->>p2p:Choose payment method / Paying for invoice
 p2p->>p2p:Invoice payment
 opt Redirect to success page
 p2p->>user:Redirect to success_url page
@@ -79,40 +103,34 @@ end
 end
 </div>
 
-<!-- ![Operation Flow](/images/bill_payments_en.png) -->
+1. User submits an order on the merchant’s website.
 
-* User submits an order on the merchant’s website.
+2. Merchant redirects the user to [Payment Form](#http) link. It automatically issues an invoice for the order. Or you may [issue an invoice by API](#create) and [redirect the user to the created Payment Form](#payUrl) (link to the form is placed in the API response).
 
-* Merchant redirects the user to [Payment Form](#http) link. It automatically issues an invoice for the order. Or you may [issue an invoice by API](#create) and [redirects to the Payment Form](#option).
+3. The user chooses a way to pay for the invoice on the Payment Form and confirm payment. By default, the optimal payment method is showed.
 
-* The user chooses the most convenient way to pay for the invoice on the Payment Form. By default, the optimal payment method is showed first.
+4. If merchant [activates notification server](#notification-server), the merchant's service receives [notification](#notification) once the invoice is successfully paid by the user. Notifications are digitally signed, so you need to verify the signature on your [notification server](#notification-auth).
 
-* The merchant's service receives [notification](#notification) once the invoice is successfully paid by the user. You need to configure notifications on your [Personal Page](https://p2p.qiwi.com). Notifications contain authorization parameters which merchant needs to verify on its server.
+If required, via the API merchant can:
 
-* If needed, via the API merchant can:
-  * [request current status](#invoice-status) of the invoice,
-  * [cancel invoice](#cancel) (if the user has not initiated payment yet).
+* [request current status](#invoice-status) of the invoice,
+* [cancel invoice](#cancel) (if the user has not initiated payment yet).
 
-* When the invoice payment is confirmed, merchant delivers ordered services/goods.
-
-# SDK and CMS {#section}
-
-## SDK and Libraries {#sdk}
+## SDK and libraries {#sdk}
 
 * [NODE JS SDK](https://github.com/QIWI-API/bill-payments-node-js-sdk) — Node JS package of ready-to-use solutions for server2server integration development.
 * [PHP SDK](https://github.com/QIWI-API/bill-payments-php-sdk) — PHP package of ready-to-use solutions for server2server integration development.
 * [Java SDK](https://github.com/QIWI-API/bill-payments-java-sdk) — Java package of ready-to-use solutions for server2server integration development.
-* [.Net SDK ](https://github.com/QIWI-API/bill-payments-dotnet-sdk) — C# .NET package of ready-to-use solutions for server2server integration development.
+* [.Net SDK](https://github.com/QIWI-API/bill-payments-dotnet-sdk) — C# .NET package of ready-to-use solutions for server2server integration development.
 
-## CMS Solutions {#cms}
+## CMS solutions {#cms}
 
-* [Wordpress](https://wordpress.org/plugins/woo-qiwi-payment-gateway/) -  plugin for Woocommerce for work with orders
-* [Online Leyka](https://wordpress.org/plugins/leyka/) -  Wordpress plagin for charity
-* [1С-Bitrix](http://marketplace.1c-bitrix.ru/solutions/qiwikassa.checkout/) - plugin for work with orders
-* [Opencart](https://www.opencart.com/index.php?route=marketplace/extension/info&member_token=nH5fDsH3A5OkPF4zOe82hS0ypOhIqSEr&extension_id=36833) - plugin for work with orders
-* [PrestaShop](https://github.com/QIWI-API/prestashop-payment-qiwi/releases) - plugin for work with orders
+* [Online Leyka](https://wordpress.org/plugins/leyka/) — Wordpress plugin for charity solutions
+* [1С-Bitrix](http://marketplace.1c-bitrix.ru/solutions/qiwikassa.checkout/) — plugin for work with orders
+* [Opencart](https://www.opencart.com/index.php?route=marketplace/extension/info&member_token=nH5fDsH3A5OkPF4zOe82hS0ypOhIqSEr&extension_id=36833) — plugin for work with orders
+* [PrestaShop](https://github.com/QIWI-API/prestashop-payment-qiwi/releases) — plugin for work with orders
 
-# Authorization {#auth}
+## Authorization methods {#auth}
 
 ~~~javascript
 const QiwiBillPaymentsAPI = require('@qiwi/bill-payments-node-js-sdk');
@@ -131,7 +149,6 @@ const qiwiApi = new QiwiBillPaymentsAPI(SECRET_KEY);
 
 const SECRET_KEY = 'eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjUyNjgxMiwiYXBpX3VzZXJfaWQiOjcxNjI2MTk3LCJzZWNyZXQiOiJmZjBiZmJiM2UxYzc0MjY3YjIyZDIzOGYzMDBkNDhlYjhiNTnONPININONPN090MTg5Z**********************';
 
-/** @var \Qiwi\Api\BillPayments $billPayments */
 $billPayments = new Qiwi\Api\BillPayments(SECRET_KEY);
 
 ?>
@@ -148,23 +165,51 @@ var secretKey = "eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjUyNjg
 var client = BillPaymentClientFactory.createDefault(secretKey);
 ~~~
 
-API requests are authorized by the API secret key (`SECRET_KEY`). Put this parameter to <i>Authorization</i> header as "Bearer SECRET_KEY".
+To authorize API requests, you need the keys:
 
-Public key (`PUBLIC_KEY`) is used when issuing invoices via [the Payment Form](#http).
+* Secret key `<SECRET_KEY>` — for request authorization in [P2P Invoicing API](#create) by [OAuth 2.0 specification](http://tools.ietf.org/html/rfc6750). Put the key into the HTTP-request header `Authorization: Bearer <SECRET_KEY>`.
+* Public key `<PUBLIC_KEY>` — for authorization in [invoicing by the payment form call](#http-invoice).
 
-**Keys are available after registration on [p2p.qiwi.com](https://p2p.qiwi.com).**
+To create a `<SECRET_KEY>` and `<PUBLIC_KEY>` pair of keys:
+
+1. Login to the personal account on <https://p2p.qiwi.com/>.
+2. Open **API** tab and click **Create a key pair and configure** button. When you create a key pair for the first time, click **Configure** button.
+
+   ![p2p API Settings](/images/p2p-api/api-settings.png)
+3. Enter a name for the key pair and click **Create** button.
+
+   <img src="/images/p2p-api/create_p2p_keys_without_notifications.png" width="384">
+4. Save the secret key in a safe place — it won't be displayed in your personal account interface. But you can always copy public key from your personal account.
+
+   <img src="/images/p2p-api/key-pair.png" width="384">
+5. Click on **Next** button. The key pair will be activated for use.
 
 <aside class="warning">
 Do not share secret key to third parties!
+
+When a key is compromised, you need to re-issue them.
 </aside>
 
-# Invoice Issue on Payment Form {#http}
+You can use the secret key for QIWI Wallet payment operations:
+
+* [make transfer to a wallet](/ru/qiwi-wallet-personal/#p2p);
+* [make transfer to a card](/ru/qiwi-wallet-personal/#cards).
+
+See details in the [documentation](/ru/qiwi-wallet-personal/#payments).
+
+## Invoice Issue on Payment Form {#http}
+
+<aside class="warning">
+Only invoices in rubles can be created this way. For creating invoices in tenge use <a href="#create">API</a>, <a href="#sdk">SDK</a>, or <a href="#cms">CMS solutions</a>.
+</aside>
 
 <aside class="notice">
 When opening Payment Form in Webview on Android, you should enable <code>settings.setDomStorageEnabled(true)</code>
 </aside>
 
-It is the simplest way of integration. On opening Payment Form, client receives an invoice at the same time. The invoice data sends in URL explicitly. Client gets a Payment Form web page with multiple payment means. When using  this method, one cannot be sure that all invoices are issued by the merchant. [API invoice creation](#create) mitigates this risk.
+It is the simplest way of integration. On opening Payment Form, client receives an invoice at the same time. The invoice data sends in URL explicitly. Client gets a Payment Form web page with multiple payment means.
+
+When using  this method, one cannot be sure that all invoices are issued by the merchant. [API invoice creation](#create) mitigates this risk.
 
 ~~~javascript
 const publicKey = 'Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******';
@@ -173,15 +218,15 @@ const params = {
     publicKey,
     amount: 42.24,
     billId: 'cc961e8d-d4d6-4f02-b737-2297e51fb48e',
-    successUrl: 'http://test.ru/',
-    email: 'm@ya.ru'
+    successUrl: 'http://example.com/',
+    email: 'mail@example.com'
 };
 
 const link = qiwiApi.createPaymentForm(params);
 ~~~
 
 ~~~shell
-curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&successUrl=http%3A%2F%2Ftest.ru%3F&email=m@ya.ru&customFields[paySourcesFilter]=qw,card&lifetime=2020-12-01T0509
+curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&successUrl=http%3A%2F%2Fexample.com%3Fsuccess%3F&email=mail@example.com&customFields[paySourcesFilter]=qw,card&lifetime=2020-12-01T0509
 ~~~
 
 ~~~php
@@ -209,7 +254,7 @@ String publicKey = "2tbp1WQvsgQeziGY9vTLe9vDZNg7tmCymb4Lh6STQokqKrpCC6qrUUKEDZAJ
         Currency.getInstance("RUB")
 );
 String billId = UUID.randomUUID().toString();
-String successUrl = "https://merchant.com/payment/success?billId=cc961e8d-d4d6-4f02-b737-2297e51fb48e";
+String successUrl = "https://example.com/payment/success?billId=cc961e8d-d4d6-4f02-b737-2297e51fb48e";
  String paymentUrl = client.createPaymentForm(new PaymentInfo(key, amount, billId, successUrl));
 ~~~
 
@@ -222,12 +267,12 @@ var amount = new MoneyAmount
     CurrencyEnum = CurrencyEnum.Rub
 };
 var billId = Guid.NewGuid().ToString();
-var successUrl = "https://merchant.com/payment/success?billId=cc961e8d-d4d6-4f02-b737-2297e51fb48e";
+var successUrl = "https://example.com/payment/success?billId=cc961e8d-d4d6-4f02-b737-2297e51fb48e";
 
 var paymentUrl = client.createPaymentForm(new PaymentInfo(key, amount, billId, successUrl));
 ~~~
 
-<h3 class="request method">REDIRECT → </h3>
+<h3 class="request method">GET → </h3>
 
 <ul class="nestedList url">
     <li><h3>URL <span>https://oplata.qiwi.com/create</span></h3></li>
@@ -240,51 +285,56 @@ const params = {
     publicKey,
     amount: 42.24,
     billId: 'cc961e8d-d4d6-4f02-b737-2297e51fb48e',
-    successUrl: 'http://test.ru/',
-    email: 'm@ya.ru'
+    successUrl: 'http://example.com/',
+    email: 'mail@example.com'
 };
 
 const link = qiwiApi.createPaymentForm(params);
 ~~~
 
 ~~~shell
-curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&successUrl=http%3A%2F%2Ftest.ru%3F&email=m@ya.ru&customFields[paySourcesFilter]=qw,card&lifetime=2020-12-01T0509
+curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&successUrl=http%3A%2F%2Fexample.com%3Fsuccess%3F&email=mail@example.com&customFields[paySourcesFilter]=qw,card&lifetime=2020-12-01T0509
 ~~~
-
-<aside class="notice">
-When opening Payment Form in Webview on Android, you should enable <code>settings.setDomStorageEnabled(true)</code>
-</aside>
 
 <ul class="nestedList params">
     <li><h3>Parameters</h3><span>Invoice data are put in Payment Form URL.</span></li>
 </ul>
 
-Parameter|Description|Type|Required
----------|--------|---|--------
-publicKey | Merchant public key received in p2p.qiwi|String|+
-billId|Unique invoice identifier in merchant's system|URL-Encoded String(200)|-
-amount| Amount of the invoice rounded down on two decimals | Number(6.2)|-
-phone | Phone number of the client to which the invoice is issuing (international format) | URL-Encoded String|-
-email | E-mail of the client where the invoice payment link will be sent | URL-Encoded String|-
-account | Client identifier in merchant's system | URL-Encoded String |-
-comment | Invoice commentary|URL-Encoded String(255)|-
-customFields[]|Additional invoice data|URL-encoded String(255)|-
-customFields[paySourcesFilter]|Allow only these payment methods for the client on Payment Form. Possible values: <br>`qw` - QIWI Wallet <br>`card` - card payment |URL-Encoded String(255)|-
-customFields[themeCode]|[Personalization](#custom) for Payments Form |String(255)|-
-lifetime | Expiration date of the pay form link (invoice payment's due date). If the invoice is not paid after that date, the invoice assigns `EXPIRED` final status and it becomes void.<br> **Important! Invoice will be automatically expired when 45 days is passed after the invoicing date**|URL-Encoded String<br>`YYYY-MM-DDThhmm`|-
-successUrl|The URL to which the client will be redirected in case of successful payment. URL must be within merchant's site.|URL-Encoded String|-
+Parameter|Description|Type
+---------|--------|---
+publicKey | **Required**. Merchant's [public key for the payment form](#auth) obtained on p2p.qiwi.com|String
+billId|Unique invoice identifier in merchant's system|URL-Encoded String(200)
+amount| Amount of the invoice rounded down on two decimals | Number(6.2)
+phone | Phone number of the client to which the invoice is issuing (international format) | URL-Encoded String
+email | E-mail of the client where the invoice payment link will be sent | URL-Encoded String
+account | Client identifier in merchant's system | URL-Encoded String
+comment | Invoice commentary|URL-Encoded String(255)
+customFields[]|Additional invoice data|URL-encoded String(255)
+customFields[paySourcesFilter]|Allow only the specified payment methods for the client on Payment Form, if they are available to the merchant. Possible values: <br>`qw` - QIWI Wallet <br>`card` - card payment |URL-Encoded String(255)
+customFields[themeCode]|[Personalization code](#custom) for Payments Form |String(255)
+lifetime | Expiration date of the pay form link (invoice payment's due date). If the invoice is not paid after that date, the invoice assigns `EXPIRED` final status and it becomes void.<br> **Important! Invoice will be automatically expired when 45 days is passed after the invoicing date**|URL-Encoded String<br>`YYYY-MM-DDThhmm`
+successUrl|The URL to which the client will be redirected in case of successful payment. URL must be within merchant's site.|URL-Encoded String
 
+## P2P Invoices API. Creating an invoice {#create}
 
-# API Operations {#API}
+<aside class="warning">
+Funds return is not supported for paid invoices.
+</aside>
 
-## 1. Invoice Issue by API {#create}
+Only invoicing in ruble and tenge is supported.
 
-It is the reliable method for integration. Parameters are sent by means of server2server requests with authorization. Method allows you to issue an invoice, successful response contains `payUrl` URL to redirect client on Payment Form.
+API invoicing is the reliable method for integration. Parameters are sent by means of server2server requests with authorization.
 
-**[Additional features](#option)**
+Successful response contains `payUrl` URL to redirect client on Payment Form. See the [documentation](#payurl) for additional URL parameters supported.
+
+<aside class="success">
+Try <a href="/ru/p2p-sdk-guide/">SDK</a> for the integration.
+</aside>
+
+There is also more simple way to invoicing — with [direct calling payment form](#http-invoice).
 
 <aside class="notice">
-For testing purposes, you can always create and pay bills for 1 ruble.
+For testing your service, we recommend to create and pay invoices for 1 ruble.
 </aside>
 
 <h3 class="request method">Request → PUT</h3>
@@ -318,7 +368,7 @@ curl --location --request PUT 'https://api.qiwi.com/partner/bill/v1/bills/cc961e
    "expirationDateTime": "2025-12-10T09:02:00+03:00",  
    "customer": {
      "phone": "78710009999",
-     "email": "test@tester.com",
+     "email": "test@example.com",
      "account": "454678"
    }, 
    "customFields" : {
@@ -339,7 +389,7 @@ $fields = [
   'currency' => 'RUB',
   'comment' => 'test',
   'expirationDateTime' => '2018-03-02T08:44:07',
-  'email' => 'example@mail.org',
+  'email' => 'mail@example.com',
   'account' => 'client4563'
 ];
 
@@ -361,11 +411,11 @@ CreateBillInfo billInfo = new CreateBillInfo(
                 "comment",
                 ZonedDateTime.now().plusDays(45),
                 new Customer(
-                        "example@mail.org",
+                        "mail@example.com",
                         UUID.randomUUID().toString(),
                         "79123456789"
                 ),
-                "http://merchant.ru/success"
+                "http://example.com/success"
         );
 BillResponse response = client.createBill(billInfo);
 ~~~
@@ -383,15 +433,14 @@ var billInfo = new CreateBillInfo
     ExpirationDateTime = DateTime.Now.AddDays(45),
     Customer = new Customer
     {
-        Email = "example@mail.org",
+        Email = "mail@example.com",
         Account = Guid.NewGuid().ToString(),
         Phone = "79123456789"
     },
-    SuccessUrl = new Uri("http://merchant.ru/success")
+    SuccessUrl = new Uri("http://example.com/success")
 };
 var response = client.createBill(billInfo);
 ~~~
-
 
 <ul class="nestedList url">
     <li><h3>URL <span>https://api.qiwi.com/partner/bill/v1/bills/{billid}</span></h3>
@@ -411,22 +460,21 @@ var response = client.createBill(billInfo);
     </li>
 </ul>
 
-Parameter|Description|Type|Required
----------|--------|---|--------
-billId|Unique invoice identifier in merchant's system|String(200)|+
-amount|Object|Data of the invoice amount|+
-amount.currency| Invoice amount currency code. `RUB` `KZT` | Alpha-3 ISO 4217 code |+
-amount.value| Amount of the invoice rounded down to two decimals | Number(6.2)|+
-expirationDateTime |  Invoice due date. Time should be specified with time zone. |`YYYY-MM-DDThhmm+\-hh:mm`|+
-customer | Customer data of the invoice subject|Object|-
-customer.phone | Phone number of the client to which the invoice is issuing (international format) |String|-
-customer.email | E-mail of the client where the invoice payment link will be sent |String|-
-customer.account | Client identifier in merchant's system |String |-
-comment | Invoice commentary|String(255)|-
-customFields|Additional invoice data|Object|-
-customFields.paySourcesFilter | Allow only these payment methods for the client on Payment Form. Possible values: <br>`qw` - QIWI Wallet <br>`card` - card payment |Comma separated string|-
-customFields.themeCode | [Personalization](#custom) for Payments Form |String(255)|-
-
+Body parameter|Description|Type
+---------|--------|-----
+billId|**Required**. Unique invoice identifier in merchant's system|String(200)
+amount|**Required**. Invoice amount information|Object
+amount.<br>currency| **Required**. Invoice amount currency code. `RUB` `KZT` | Alpha-3 ISO 4217 code
+amount.<br>value| **Required**. Amount of the invoice rounded down to two decimals | Number(6.2)
+expirationDateTime |  **Required**. Invoice due date. Time should be specified with time zone. If the date passed, the invoice is cancelled.|`YYYY-MM-DDThhmm+\-hh:mm`
+customer | Customer data of the invoice subject|Object
+customer.<br>phone | Phone number of the client to which the invoice is issuing (international format) |String
+customer.<br>email | E-mail of the client where the invoice payment link will be sent |String
+customer.<br>account | Client identifier in merchant's system |String
+comment | Invoice commentary|String(255)
+customFields|Additional invoice data|Object
+customFields.<br>paySourcesFilter | Allow only these payment methods for the client on Payment Form. Possible values: <br>`qw` - QIWI Wallet <br>`card` - card payment |Comma separated string
+customFields.<br>themeCode | [Personalization](#custom) for Payments Form |String(255)
 
 <h3 class="request">Response ←</h3>
 
@@ -446,7 +494,7 @@ customFields.themeCode | [Personalization](#custom) for Payments Form |String(25
     },
     "customer": {
         "phone": "78710009999",
-        "email": "test@tester.com",
+        "email": "test@example.com",
         "account": "454678"
     },
     "customFields": {
@@ -488,26 +536,25 @@ Field|Type|Description
 --------|---|--------
 billId|String|Unique invoice identifier in the merchant's system
 siteId|String|Merchant's site identifier in p2p.qiwi
-amount|Object|Data of the invoice amount
-amount.value|String|The invoice amount. The number is rounded down to two decimals
-amount.currency|String|Currency identifier of the invoice amount (Alpha-3 ISO 4217 code)
+amount|Object|Information about the invoice amount
+amount.<br>value|String|The invoice amount. The number is rounded down to two decimals
+amount.<br>currency|String|Currency identifier of the invoice amount (Alpha-3 ISO 4217 code)
 status|Object|Data of the invoice current status
-status.value|String | String representation of the status. [Possible statuses](#status)
-status.changedDateTime|String|Status refresh date. Date format:<br>`YYYY-MM-DDThh:mm:ss±hh`
+status.<br>value|String | String representation of the status. [Possible statuses](#status)
+status.<br>changedDateTime|String|Status refresh date. Date format:<br>`YYYY-MM-DDThh:mm:ss±hh`
 customer|Object | Customer data of the invoice subject
-customer.phone|String | The customer’s phone (if specified in the invoice)
-customer.email|String|The customer's e-mail  (if specified in the invoice)
-customer.account| String|The customer's identifier in the merchant's system (if specified in the invoice)
+customer.<br>phone|String | The customer’s phone (if specified in the invoice)
+customer.<br>email|String|The customer's e-mail  (if specified in the invoice)
+customer.<br>account| String|The customer's identifier in the merchant's system (if specified in the invoice)
 customFields|Object|Additional invoice data provided by the merchant
 comment|String|Comment to the invoice
 creationDateTime|String|System date of the invoice creation. Date format:<br>`YYYY-MM-DDThh:mm:ss±hh`
 payUrl|String|Pay form URL
-expirationDateTime|String|Expiration date of the pay form link (invoice payment's due date). Date format:<br>`YYYY-MM-DDThh:mm:ss±hh`
+expirationDateTime|String|Expiration date of the payment form URL (invoice payment's due date). [Redirect the customer](#payurl) to the URL link for invoice payment, or use [Popup JavaScript library](#popup), to open the form in the popup window. Date format:<br>`YYYY-MM-DDThh:mm:ss±hh`
 
+## P2P Invoices API. Checking the Invoice Status {#invoice-status}
 
-## 2. Checking the Invoice Status {#invoice-status}
-
-Use this method to get current invoice payment status. We recommend using it after receiving the payment notification.
+We recommend using the method after receiving the [payment notification](#notification).
 
 <h3 class="request method">Request → GET</h3>
 
@@ -549,7 +596,6 @@ var billId = "fcb40a23-6733-4cf3-bacf-8e425fd1fc71";
 var response = client.getBillInfo(billId);
 ~~~
 
-
 <ul class="nestedList url">
     <li><h3>URL <span>https://api.qiwi.com/partner/bill/v1/bills/{billid}</span></h3>
         <ul>
@@ -584,7 +630,7 @@ var response = client.getBillInfo(billId);
         "changedDateTime": "2021-01-18T14:22:56.672+03:00"
     },
     "customer": {
-        "email": "test@tester.com",
+        "email": "test@example.com",
         "phone": "78710009999",
         "account": "454678"
     },
@@ -626,23 +672,23 @@ Field|Type|Description
 --------|---|--------
 billId|String|Unique invoice identifier in the merchant's system
 siteId|String|Merchant's site identifier in p2p.qiwi
-amount|Object|The invoice amount data
-amount.value|Number|The invoice amount. The number is rounded down to two decimals
-amount.currency|String|Currency identifier of the invoice amount (Alpha-3 ISO 4217 code)
+amount|Object|Information about the invoice amount
+amount.<br>value|Number|The invoice amount. The number is rounded down to two decimals
+amount.<br>currency|String|Currency identifier of the invoice amount (Alpha-3 ISO 4217 code)
 status|Object|Invoice status data
-status.value|String|Current [invoice status](#status)
-status.changedDateTime|String|Status refresh date
+status.<br>value|String|Current [invoice status](#status)
+status.<br>changedDateTime|String|Status refresh date
 customFields|Object|Additional invoice data provided by the merchant
 customer |Object | Customer data of the invoice subject
-customer.phone|String | The customer’s phone (if specified in the invoice)
-customer.email|String|The customer's e-mail  (if specified in the invoice)
-customer.account|String|The customer's identifier in the merchant's system (if specified in the invoice)
+customer.<br>phone|String | The customer’s phone (if specified in the invoice)
+customer.<br>email|String|The customer's e-mail  (if specified in the invoice)
+customer.<br>account|String|The customer's identifier in the merchant's system (if specified in the invoice)
 comment|String|Comment to the invoice
 creationDateTime|String|System date of the invoice creation. Date format:<br>`YYYY-MM-DDThh:mm:ss`
-payUrl|String|Pay form URL
+payUrl|String|Payment form URL for [customer redirect](#payurl)
 expirationDateTime|String|Expiration date of the pay form link (invoice payment's due date). Date format:<br>`YYYY-MM-DDThh:mm:ss`
 
-## 3. Cancelling the Invoice {#cancel}
+## P2P Invoices API. Cancelling the Invoice {#cancel}
 
 Use this method to cancel unpaid invoice.
 
@@ -724,7 +770,7 @@ var response = client.cancelBill(billId);
         "changedDateTime": "2021-01-18T14:36:17.65+03:00"
     },
     "customer": {
-        "email": "test@tester.com",
+        "email": "test@example.com",
         "phone": "78710009999",
         "account": "454678"
     },
@@ -766,42 +812,38 @@ Field|Type|Description
 --------|---|--------
 billId|String|Unique invoice identifier in the merchant's system
 siteId|String|Merchant's site identifier in p2p.qiwi
-amount|Object|The invoice amount data
-amount.value|Number|The invoice amount. The number is rounded down to two decimals
-amount.currency|String|Currency identifier of the invoice amount (Alpha-3 ISO 4217 code)
+amount|Object|Information about the invoice amount
+amount.<br>value|Number|The invoice amount. The number is rounded down to two decimals
+amount.<br>currency|String|Currency identifier of the invoice amount (Alpha-3 ISO 4217 code)
 status|Object|Invoice status data
-status.value|String|Current [invoice status](#status)
-status.changedDateTime|String|Status refresh date
+status.<br>value|String|Current [invoice status](#status)
+status.<br>changedDateTime|String|Status refresh date
 customFields|Object|Additional invoice data provided by the merchant
 customer |Object | Customer data of the invoice subject
-customer.phone|String | The customer’s phone (if specified in the invoice)
-customer.email|String|The customer's e-mail  (if specified in the invoice)
-customer.account|String|The customer's identifier in the merchant's system (if specified in the invoice)
+customer.<br>phone|String | The customer’s phone (if specified in the invoice)
+customer.<br>email|String|The customer's e-mail  (if specified in the invoice)
+customer.<br>account|String|The customer's identifier in the merchant's system (if specified in the invoice)
 comment|String|Comment to the invoice
 creationDateTime|String|System date of the invoice creation. Date format:<br>`YYYY-MM-DDThh:mm:ss`
-payUrl|String|Pay form URL
+payUrl|String|Payment form URL
 expirationDateTime|String|Expiration date of the pay form link (invoice payment's due date). Date format:<br>`YYYY-MM-DDThh:mm:ss`
 
-
-
-### Invoice Payment Statuses {#status}
+## P2P Invoices API. Invoice Payment Statuses {#status}
 
 Status|Description|Final
 ------|--------|---------
 WAITING | Invoice issued awaiting for payment| -
 PAID|Invoice paid|+
 REJECTED|Invoice rejected by customer|+
-EXPIRED	|Invoice expired. Invoice not paid|+
+EXPIRED|Invoice expired. Invoice not paid|+
 
-# Invoice Payment Notifications {#notification}
+## Invoice payment notifications {#notification}
 
 <aside class="notice">
 Notifications handler service on your side is not required for the integration. You can implement <a href="#invoice-status">invoice status polling</a> instead.
 </aside>
 
-The server address for notifications is specified in your personal account <a href = "https://p2p.qiwi.com/">p2p.qiwi.com</a> when [generating keys](#auth).
-
-Please read the [Notification API Integration Terms](https://qiwi.com/support/products/p2p/usloviya_integratsii_api_uvedomleniy) before working with the notification service
+Before working with the notification service, consider the [Notification API Integration Terms](https://qiwi.com/support/products/p2p/usloviya_integratsii_api_uvedomleniy).
 
 Pools of IP-addresses from which QIWI service sends notifications:
 
@@ -814,19 +856,22 @@ If your web service works behinds the firewall, you need to add these IP-address
 
 <aside class="warning">
 Callback is sent by HTTPS protocol on 443 port only.
-Certificate should be issued by any trusted center of certification (e.g. Comodo, Verisign, Thawte etc)
+
+Certificate should be issued by any trusted center of certification (e.g. Comodo, Verisign, Thawte etc).
 </aside>
+
+Notification (callback) is an incoming HTTP POST-request.
 
 <h3 class="request method">Request ← POST</h3>
 
- >Notification example
+>Notification example
 
 ~~~http
 POST /qiwi-notify.php HTTP/1.1
 Accept: application/json
 Content-type: application/json
 X-Api-Signature-SHA256: J4WNfNZd***V5mv2w=
-Host: server.ru
+Host: example.com
 
 {
   "bill": {
@@ -842,7 +887,7 @@ Host: server.ru
     },
     "customer": {
       "phone": "78710009999",
-      "email": "test@tester.com",
+      "email": "test@example.com",
       "account": "454678"
     },
     "customFields": {
@@ -859,7 +904,7 @@ Host: server.ru
 }
 ~~~
 
-Notification is an incoming POST-request (callback). The request's body contains JSON-serialized invoice data encoded by UTF-8.
+The request's body contains JSON-serialized invoice data encoded by UTF-8 codepage.
 
 <ul class="nestedList header">
     <li><h3>HEADERS</h3>
@@ -871,9 +916,45 @@ Notification is an incoming POST-request (callback). The request's body contains
     </li>
 </ul>
 
-## Authorization on Merchant's Server {#notifications_auth}
+<aside class="notice">
+Headers are case-insensitive according to the standard, and your client can change them — see the documentation of your client.
+</aside>
 
-Upon receiving inbound notification you need to verify it by digital signature from notification HTTP header `X-Api-Signature-SHA256`. Signature is verified with HMAC algorithm integrity check with SHA256-hash function.
+<aside class="notice">
+Any response with HTTP status code other than 200 (OK) will be treated as a temporary merchant's service error. QIWI server repeats the notification request with increasing period within the next 24 hours.
+</aside>
+
+<aside class="warning">
+Notification might be sent more than once, even if your service responds with successful HTTP status code. Take it into consideration when developing application business logic on your side.
+</aside>
+
+## Merchant's server registration {#notification-server}
+
+URL address of notification processing server is configured in the [personal account profile](https://p2p.qiwi.com/). A new [key pair](#auth) is issued simultaneously.
+
+<aside class="warning">
+You can configure the notification server for only one key pair.
+</aside>
+
+1. Login to your [personal account](https://p2p.qiwi.com/).
+2. Open **API** tab and click **Create key pair and configure** button. When you configure the server address along with creating a key pair for the first time, click **Configure** button.
+
+   ![p2p API Settings](/images/p2p-api/api-settings.png)
+3. Enter name for the new key pair.
+
+   <img src="/images/p2p-api/create_p2p_keys_without_notifications.png" width="384">
+4. Select **Use this key pair for notifications about invoice status changes** field.
+
+   <img src="/images/p2p-api/create_p2p_keys_with_notifications.png" width="384">
+5. In **URL notification server** specify your notification service URL. **The service URL must be accessible from the Internet.**
+6. Click **Create** button.
+
+   <img src="/images/p2p-api/key-pair.png" width="384">
+7. Change QIWI P2P keys in your application settings to the new one.
+
+## How to verify notification authenticity {#notification-auth}
+
+Upon receiving incoming notification you need to verify its digital signature. The notification signature is placed in `X-Api-Signature-SHA256` HTTP header. Signature mechanism uses HMAC algorithm integrity check with SHA256-hash function.
 
 Signature verification algorithm is as follows:
 
@@ -885,11 +966,11 @@ Signature verification algorithm is as follows:
 
 2. Apply HMAC-SHA256 function:
 
-    `hash = HMAС(SHA256, invoice_parameters, secret_key)`
+    `hash = HMAС(SHA256, invoice_parameters, <SECRET_KEY>)`
 
     where:
 
-    * `secret_key` – function key;
+    * `<SECRET_KEY>` – [secret key](#auth) used for the invoice creation;
     * `invoice_parameters` – string from step 1.
 
 3. Compare `X-Api-Signature-SHA256` header's value with the result of step 2.
@@ -960,7 +1041,6 @@ String validSignature = "07e0ebb10916d97760c196034105d010607a6c6b7d72bfa1c345144
  BillPaymentsUtils.checkNotificationSignature(validSignature, notification, merchantSecret); //true
 ~~~
 
-
 String and key of the signature are encoded in UTF-8.
 
 <ul class="nestedList params">
@@ -968,31 +1048,29 @@ String and key of the signature are encoded in UTF-8.
     </li>
 </ul>
 
-
-Field|Description|Type
+Notification field|Description|Type
 ---------|--------|---
 bill|Invoice data|Object
-bill.billId|Invoice identifier in the merchant's system|String(200)
-bill.siteId|Merchant's site identifier in p2p.qiwi |String
-bill.amount|The invoice amount data|Object
-amount.value|The invoice amount. The number is rounded down to two decimals|Number(6.2)
-amount.currency|Currency identifier of the invoice amount (Alpha-3 ISO 4217 code)|String(3)
-bill.status|Invoice status data|Object
-status.value|Current [invoice status](#status)|String
-status.changedDateTime|Status refresh date. Date format:<br>`YYYY-MM-DDThh:mm:ssZ`|String
-bill.customFields|Additional invoice data provided by the merchant|Object
-bill.customer | Customer data of the invoice subject  (if specified in the invoice)|Object
-customer.phone | The customer’s phone (if specified in the invoice)|String
-customer.email|The customer's e-mail  (if specified in the invoice)|String
-customer.account|The customer's identifier in the merchant's system (if specified in the invoice)| String
-bill.comment|Comment to the invoice|String(255)
-bill.creationDateTime|System date of the invoice creation. Date format:<br>`YYYY-MM-DDThh:mm:ssZ`|String
-bill.payUrl|Pay form URL|String
-bill.expirationDateTime|Expiration date of the pay form link (invoice payment's due date). Date format:<br>`YYYY-MM-DDThh:mm:ssZ`|String
+billId|Invoice identifier in the merchant's system|String(200)
+siteId|Merchant's site identifier in p2p.qiwi |String
+amount|Information about the invoice amount|Object
+amount.<br>value|The invoice amount. The number is rounded down to two decimals|Number(6.2)
+amount.<br>currency|Currency identifier of the invoice amount (Alpha-3 ISO 4217 code)|String(3)
+status|Invoice status data|Object
+status.<br>value|Current [invoice status](#status)|String
+status.<br>changedDateTime|Status refresh date. Date format:<br>`YYYY-MM-DDThh:mm:ssZ`|String
+customFields|Additional invoice data provided by the merchant|Object
+customer | Customer data of the invoice subject  (if specified in the invoice)|Object
+customer.<br>phone | The customer’s phone (if specified in the invoice)|String
+customer.<br>email|The customer's e-mail  (if specified in the invoice)|String
+customer.<br>account|The customer's identifier in the merchant's system (if specified in the invoice)| String
+comment|Comment to the invoice|String(255)
+creationDateTime|System date of the invoice creation. Date format:<br>`YYYY-MM-DDThh:mm:ssZ`|String
+payUrl|Payment form URL|String
+expirationDateTime|Expiration date of the pay form link (invoice payment's due date). Date format:<br>`YYYY-MM-DDThh:mm:ssZ`|String
 version | Notification service version | String
 
 <h3 class="request">Response → </h3>
-
 
 ~~~http
 HTTP/1.1 200 OK
@@ -1013,16 +1091,13 @@ Content-Type: application/json
 
 After receiving incoming notification request, you should verify its signature and returns the JSON-response. The processing result code should be returned in response.
 
-<aside class="notice">
-Any response with HTTP status code other than 200 (OK) will be treated as a temporary merchant's service error. QIWI server repeats the notification request with increasing period within the next 24 hours.
-</aside>
-
-# Payment Form options {#option}
+## Invoice payment form {#payurl}
 
 <aside class="notice">
 When opening Payment Form in Webview on Android, you should enable <code>settings.setDomStorageEnabled(true)</code>
 </aside>
 
+You can add parameters to URL from `payUrl` field of the response to [invoice request](#create):
 
 > Invoice URL example
 
@@ -1030,25 +1105,44 @@ When opening Payment Form in Webview on Android, you should enable <code>setting
 curl https://oplata.qiwi.com/form?invoiceUid=a8437e7e-dc48-44f7-9bdb-4d46ca8ef2e4&paySource=qw&successUrl=google.com
 ~~~
 
-You can add parameters to URL from `payUrl` field of the response to [invoice request](#create).
-
 | Parameter | Description | Type |
 |--------------|------------|-------------|
 | paySource |Pre-selected payment method for the client on Payment Form. Possible values: <br>`qw` - QIWI Wallet<br>`card` - card payment<br>`mobile` - payment from phone balance<br> When specified method is inaccessible, the page automatically selects recommended method for the user.| String |
-| successUrl | The URL to which the client will be redirected in case of successful payment. URL must be within merchant's site. | URL-Encoded String |
+| successUrl | The URL on the merchant's site for redirection of the customer after the successful payment. | URL-Encoded String |
 
-# Personalization {#custom}
+Add referal links for payments from your site. This confirms the site is real and will avoid [the wallet blocking problems](https://qiwi.com/support/products/p2p/kak_izbezhat_blokirovki_koshelka). **Payments from any page without [Refer](https://developer.mozilla.org/ru/docs/Web/HTTP/Headers/Referer) header will result in wallet block. See details in the [documentation](https://qiwi.com/support/products/p2p/referalnie_ssylki).**
+
+> Referal link example
+
+~~~php
+<?php 
+  header("Referrer-Policy: no-referrer-when-downgrade"); 
+?>
+~~~
+
+To make sure the [full referer](https://web.dev/referrer-best-practices/) is tranferred for the new version of browsers, set `Referrer-Policy` in your server response with `no-referrer-when-downgrade` value. It can be done for all pages of your site or only for the page with payment form link.
+
+## Personalization {#custom}
 
 Personalization allows you to create a payment form with your style, customizable logo, background and color of the buttons.  
 
-You can create styles in your account on [p2p.qiwi.com](https://p2p.qiwi.com).
+Example of a customized payment form:
 
-When setting up, you create a code linked to the style (for example, `codeStyle`). To use style on the Payment Form, you must pass the variable: `"themeCode": "codeStyle"` with respective code of the style in the `customFields` parameter of the [invoice request](#create) or  [opening Payment Form URL](#http).
+![Customer form](/images/Custom.png)
+
+To setup payment form appearance:
+
+1. Login to your personal account on [p2p.qiwi.com](https://p2p.qiwi.com).
+2. Open [Transfer acceptance form](https://qiwi.com/p2p-admin/transfers/link) tab. Your code style for `themeCode` parameter (you need it for API and SDK requests) is marked bold in grey block. Value `codeStyle` is different for different QIWI wallets.
+
+   ![alt_text](/images/p2p-api/sdk-image1.png "Form settings")
+3. Click **Tune** button and configure the form' parameters.
+4. Click **Save** button.
 
  >Invoice Issue on Payment Form
 
 ~~~shell
-curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&billId=cc961e8d-d4d6-4f02-b737-2297e51fb48e&successUrl=http%3A%2F%2Ftest.ru%3F&customFields%5BthemeCode%5D=codeStyle
+curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfmGQnypc*******&amount=100&billId=cc961e8d-d4d6-4f02-b737-2297e51fb48e&successUrl=http%3A%2F%2Fexample.com%3Fsuccess%3F&customFields%5BthemeCode%5D=codeStyle
 ~~~
 
  >Invoice Issue by API
@@ -1066,32 +1160,103 @@ curl --location --request PUT 'https://api.qiwi.com/partner/bill/v1/bills/cc961e
    "comment": "Text comment",
    "expirationDateTime": "2025-04-13T14:30:00+03:00",
    "customer": {},
-   "customFields": {"themeCode":"кодСтиля"}
+   "customFields": {"themeCode":"codeStyle"}
  }'
 ~~~
 
-![Customer form](/images/Custom.png)
+~~~javascript
+const billId = 'cc961e8d-d4d6-4f02-b737-2297e51fb48e';
 
-# Checkout Popup {#popup}
+const fields = {
+    amount: 1.00,
+    currency: 'RUB',
+    comment: 'Hello world',
+    customFields: {themeCode: 'codeStyle'},
+    expirationDateTime: '2018-03-02T08:44:07+03:00'
+};
 
-<button id="pop" class="button-popup" onclick="testPopup();">Demo popup</button>
+qiwiApi.createBill( billId, fields ).then( data => {
+    //do with data
+});
+~~~
 
+~~~php
+<?php
+
+$billId = 'cc961e8d-d4d6-4f02-b737-2297e51fb48e';
+$customFields = ['themeCode' => 'codeStyle'];
+$fields = [
+  'amount' => 1.00,
+  'currency' => 'RUB',
+  'comment' => 'test',
+  'expirationDateTime' => '2018-03-02T08:44:07+03:00',
+  'email' => 'mail@example.org',
+  'account' => 'client4563',
+  'customFields' => $customFields
+];
+
+/** @var \Qiwi\Api\BillPayments $billPayments */
+$response = $billPayments->createBill($billId, $fields);
+
+print_r($response);
+
+?>
+~~~
+
+~~~csharp
+client.CreateBill(
+    info: new CreateBillInfo
+    {
+        BillId = Guid.NewGuid().ToString(),
+        Amount = new MoneyAmount
+        {
+            ValueDecimal = 199.9m,
+            CurrencyEnum = CurrencyEnum.Rub
+        },
+        Comment = "comment",
+        ExpirationDateTime = DateTime.Now.AddDays(45),
+        Customer = new Customer
+        {
+            Email = "mail@example.org",
+            Account = Guid.NewGuid().ToString(),
+            Phone = "79123456789"
+        },
+        SuccessUrl = new Uri("http://example.com/success"),
+        CustomFields: new CustomFields
+        {
+            ThemeCode = "codeStyle"
+        }
+    }
+);
+~~~
+
+To apply the appearance to the payment form:
+
+* Add `customFields` object with `themeCode` field where your code is specified in the body of the [invoice request](#create) or in the parameters of invoice creation method in the corresponding [SDK module](#sdk).
+
+   For example, `"customFields": { "themeCode":"codeStyle"}`.
+* Add `customFields` array element with `themeCode` field on [calling the payment form](#http-invoice) and put your code there.
+
+   For example, `customFields[themeCode]=кодСтиля`.
+
+## Checkout Popup library {#popup}
+
+<button id="pop" class="button-popup">Demo popup</button>
+
+The library methods open the payment form as a popup window over your site in browser.
 
 [Download QIWI Checkout Popup](https://github.com/QIWI-API/qiwi-invoicing-popup)
 
 Installation:
-<script src='https://oplata.qiwi.com/popup/v1.js'></script>
 
+`<script src='https://oplata.qiwi.com/popup/v1.js'></script>`
 
-The library has two methods: open an existing invoice and open your [personal payform](https://qiwi.com/p2p-admin/transfers/link).
+The library has two methods:
 
-##  Open an existing invoice {#openpopup}
+* Open an existing invoice.
+* Open your [personal payform](https://qiwi.com/p2p-admin/transfers/link).
 
-Call function  `QiwiCheckout.openInvoice`.
-
-| Parameter | Description | Type | Required |
-|--------------|------------|-------------|--------------|
-| payUrl | Pay form URL| String | + |
+### Open an existing invoice {#openpopup}
 
 >Open an existing invoice
 
@@ -1109,12 +1274,17 @@ QiwiCheckout.openInvoice(params)
     })
 ~~~
 
+Call function  `QiwiCheckout.openInvoice`.
 
-##  Open personal payform {#openpopupcustom}
+| Parameter | Description | Type |
+|--------------|------------|-------------|
+| payUrl | **Required**. Payment form URL| String
 
-Call function  `QiwiCheckout.openPreorder`
+### Open personal payform {#openpopupcustom}
 
->Open your payform
+Call function  `QiwiCheckout.openPreorder`.
+
+>Open your custom payform
 
 ~~~ppp
 params = {
@@ -1130,7 +1300,6 @@ QiwiCheckout.openPreorder(params)
     })
 ~~~
 
-| Parameter | Description | Type | Required |
-|---------|----------|----------|---------|
-| widgetAlias | URL of your payform | String | + |
-
+| Parameter | Description | Type |
+|---------|----------|----------|
+| widgetAlias | **Required**. URL of your payform | String |
