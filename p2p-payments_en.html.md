@@ -355,29 +355,30 @@ qiwiApi.createBill( billId, fields ).then( data => {
 ~~~
 
 ~~~shell
-curl --location --request PUT 'https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e' \
---header 'content-type: application/json' \
---header 'accept: application/json' \
---header 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************' \
---data-raw '{  
-   "amount": {   
+curl --location --request PUT \
+  'https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e' \
+  --header 'content-type: application/json' \
+  --header 'accept: application/json' \
+  --header 'Authorization: Bearer <SECRET_KEY>' \
+  --data-raw '{
+    "amount": {   
      "currency": "RUB",   
      "value": "1.00" 
-   },  
-   "comment": "Text comment",  
-   "expirationDateTime": "2025-12-10T09:02:00+03:00",  
-   "customer": {
+    },  
+    "comment": "Text comment",  
+    "expirationDateTime": "2025-12-10T09:02:00+03:00",  
+    "customer": {
      "phone": "78710009999",
      "email": "test@example.com",
      "account": "454678"
-   }, 
-   "customFields" : {
+    }, 
+    "customFields" : {
      "paySourcesFilter":"qw",
      "themeCode": "Yvan-YKaSh",
      "yourParam1": "64728940",
      "yourParam2": "order 678"
-   }
- }'
+    }
+  }'
 ~~~
 
 ~~~php
@@ -567,9 +568,10 @@ qiwiApi.getBillInfo(billId).then( data => {
 ~~~
 
 ~~~shell
-curl --location --request GET 'https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e' \
---header 'accept: application/json' \
---header 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************'
+curl --location --request GET \
+  'https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e' \
+  --header 'accept: application/json' \
+  --header 'Authorization: Bearer <SECRET_KEY>'
 ~~~
 
 ~~~php
@@ -703,11 +705,12 @@ qiwiApi.cancelBill(billId).then( data => {
 ~~~
 
 ~~~shell
-curl --location --request POST 'https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e/reject' \
---header 'content-type: application/json' \
---header 'accept: application/json' \
---header 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************' \
---data-raw ''
+curl --location --request POST \
+  'https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e/reject' \
+  --header 'content-type: application/json' \
+  --header 'accept: application/json' \
+  --header 'Authorization: Bearer <SECRET_KEY>' \
+  --data-raw ''
 ~~~
 
 ~~~php
@@ -1148,20 +1151,21 @@ curl https://oplata.qiwi.com/create?publicKey=Fnzr1yTebUiQaBLDnebLMMxL8nc6FF5zfm
  >Invoice Issue by API
 
 ~~~shell
-curl --location --request PUT 'https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e' \
---header 'content-type: application/json' \
---header 'accept: application/json' \
---header 'Authorization: Bearer eyJ2ZXJzaW9uIjoicmVzdF92MyIsImRhdGEiOnsibWVyY2hhbnRfaWQiOjIwNDIsImFwaV91c2VyX2lkIjo1NjYwMzk3Miwic2VjcmV0IjoiQjIwODlDNkI5Q0NDNTdCNDQzNGHJK43JFJDK595FJFJMjlCRkFFRDM5OE***********************' \
---data-raw '{
-   "amount": {
+curl --location --request PUT \
+  'https://api.qiwi.com/partner/bill/v1/bills/cc961e8d-d4d6-4f02-b737-2297e51fb48e' \
+  --header 'content-type: application/json' \
+  --header 'accept: application/json' \
+  --header 'Authorization: Bearer <SECRET_KEY>' \
+  --data-raw '{
+    "amount": {
      "currency": "RUB",
      "value": 100.00
-   },
-   "comment": "Text comment",
-   "expirationDateTime": "2025-04-13T14:30:00+03:00",
-   "customer": {},
-   "customFields": {"themeCode":"codeStyle"}
- }'
+    },
+    "comment": "Text comment",
+    "expirationDateTime": "2025-04-13T14:30:00+03:00",
+    "customer": {},
+    "customFields": {"themeCode":"codeStyle"}
+  }'
 ~~~
 
 ~~~javascript
